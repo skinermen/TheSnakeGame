@@ -33,6 +33,8 @@ namespace ApplesGame
 		// Main Menu Text
 		InitTextUI(uiState.mainMenuTextStartGame, font, 72, 1, sf::Color::Green, "Press the SPACE\nto start the game");
 		uiState.mainMenuTextStartGame.setOrigin(GetTextOrigin(uiState.mainMenuTextStartGame, { 0.5f, 0.5f }));
+		InitTextUI(uiState.mainMenuTextScoreboard, font, 24, 1, sf::Color::White, "Press Tab to open the scoreboard");
+		uiState.mainMenuTextScoreboard.setOrigin(GetTextOrigin(uiState.mainMenuTextScoreboard, { 0.5f, 0.5f }));
 		InitTextUI(uiState.mainMenuTextInsructions, font, 24, 3, sf::Color::Green, "Use the keys 1, 2 to select the game mode");
 		InitTextUI(uiState.mainMenuGameModeUnlimitedFoods, font, 24, 1, sf::Color::White);
 		InitTextUI(uiState.mainMenuGameModeAcceleration, font, 24, 1, sf::Color::White);
@@ -46,8 +48,14 @@ namespace ApplesGame
 		InitTextUI(uiState.winnerText, font, 76, 1, sf::Color::Green, "WINNER");
 		uiState.winnerText.setOrigin(GetTextOrigin(uiState.winnerText, { 0.5f, 0.5f }));
 
-		// Leaderboard
-		for (Leaderboard& item : uiState.vectorScoreTable)
+		// Scoreboard
+		InitTextUI(uiState.scoreboardTextTitle, font, 48, 1, sf::Color::White, "Scoreboard:");
+		uiState.scoreboardTextTitle.setOrigin(GetTextOrigin(uiState.scoreboardTextTitle, { 0.5f, 0.5f }));
+
+		InitTextUI(uiState.scoreboardTextInstructions, font, 24, 1, sf::Color::White, "Press ESC to return to the main menu");
+		uiState.scoreboardTextInstructions.setOrigin(GetTextOrigin(uiState.scoreboardTextInstructions, { 0.5f, 0.5f }));
+
+		for (Scoreboard& item : uiState.vectorScoreTable)
 		{
 			if (item.name == "YOU")
 			{
@@ -60,23 +68,23 @@ namespace ApplesGame
 		}
 	}
 
-	void InitLeaderboard(UIState& uiState, int numEatenFoods, const sf::Font& font, std::vector<Leaderboard>& scoreTable)
+	void InitScoreboard(UIState& uiState, int numEatenFoods, const sf::Font& font, std::vector<Scoreboard>& scoreTable)
 	{
 		int i = 0;
         
 		// Sort vector Score Table
 		stable_sort(uiState.vectorScoreTable.begin(), uiState.vectorScoreTable.end(),
-					[](const Leaderboard& a, const Leaderboard& b)
+					[](const Scoreboard& a, const Scoreboard& b)
 					{
 						return a.score > b.score;
 					});
 
 		// Init text
-		for (Leaderboard& item : scoreTable)
+		for (Scoreboard& item : scoreTable)
 		{
 			if (item.name == "YOU")
 			{
-				InitTextUI(uiState.leaderboardNameText[i], font, 40, 1, sf::Color::White);
+				InitTextUI(uiState.scoreboardNameText[i], font, 40, 1, sf::Color::White);
 				if (item.score < numEatenFoods)
 				{
 					item.score = numEatenFoods;
@@ -84,11 +92,11 @@ namespace ApplesGame
 			}
 			else
 			{
-				InitTextUI(uiState.leaderboardNameText[i], font, 40, 1, sf::Color::Green);
+				InitTextUI(uiState.scoreboardNameText[i], font, 40, 1, sf::Color::Green);
 			}
 
-			uiState.leaderboardNameText[i].setString(item.name + ": " + std::to_string(item.score));
-			uiState.leaderboardNameText[i].setOrigin(100.f, 10.f);
+			uiState.scoreboardNameText[i].setString(item.name + ": " + std::to_string(item.score));
+			uiState.scoreboardNameText[i].setOrigin(100.f, 10.f);
 			++i;
 		}
 	}
@@ -113,7 +121,7 @@ namespace ApplesGame
 			uiState.isMainMenuTextVisible = true;
 			uiState.isQuitMenuTextVisible = false;
 			uiState.isWinnerTextVisible = false;
-			uiState.isLeaderboardVisible = false;
+			uiState.isScoreboardVisible = false;
 		}
 
 		if (GetCurrentGameState(game) == GameState::Playing)
@@ -123,7 +131,7 @@ namespace ApplesGame
 			uiState.isMainMenuTextVisible = false;
 			uiState.isQuitMenuTextVisible = false;
 			uiState.isWinnerTextVisible = false;
-			uiState.isLeaderboardVisible = false;
+			uiState.isScoreboardVisible = false;
 		}
 
 		if (GetCurrentGameState(game) == GameState::GameOver)
@@ -133,17 +141,17 @@ namespace ApplesGame
 			uiState.isMainMenuTextVisible = false;
 			uiState.isQuitMenuTextVisible = false;
 			uiState.isWinnerTextVisible = false;
-			uiState.isLeaderboardVisible = false;
+			uiState.isScoreboardVisible = false;
 		}
 
-		if (game.isScreenLeaderboard)
+		if (GetCurrentGameState(game) == GameState::Scoreboard)
 		{
 			uiState.isGameTextVisible = false;
 			uiState.isGameOverTextVisible = false;
 			uiState.isMainMenuTextVisible = false;
 			uiState.isQuitMenuTextVisible = false;
 			uiState.isWinnerTextVisible = false;
-			uiState.isLeaderboardVisible = true;
+			uiState.isScoreboardVisible = true;
 		}
 
 		if (GetCurrentGameState(game) == GameState::Winner)
@@ -153,7 +161,7 @@ namespace ApplesGame
 			uiState.isMainMenuTextVisible = false;
 			uiState.isQuitMenuTextVisible = false;
 			uiState.isWinnerTextVisible = true;
-			uiState.isLeaderboardVisible = false;
+			uiState.isScoreboardVisible = false;
 		}
 
 		if (GetCurrentGameState(game) == GameState::QuitMenu)
@@ -163,7 +171,7 @@ namespace ApplesGame
 			uiState.isMainMenuTextVisible = false;
 			uiState.isQuitMenuTextVisible = true;
 			uiState.isWinnerTextVisible = false;
-			uiState.isLeaderboardVisible = false;
+			uiState.isScoreboardVisible = false;
 		}
 	}
 
@@ -193,6 +201,9 @@ namespace ApplesGame
 			
 			uiState.mainMenuTextStartGame.setPosition(window.getSize().x / 2.f, 100.f);
 			window.draw(uiState.mainMenuTextStartGame);
+			
+			uiState.mainMenuTextScoreboard.setPosition(window.getSize().x / 2.f, 200.f);
+			window.draw(uiState.mainMenuTextScoreboard);
 			
 			uiState.mainMenuTextInsructions.setPosition(10.f, window.getSize().y - 100.f);
 			window.draw(uiState.mainMenuTextInsructions);
@@ -234,20 +245,27 @@ namespace ApplesGame
 			window.draw(uiState.gameOverTextInstructions);
 		}
 
-		if (uiState.isLeaderboardVisible)
+		if (uiState.isScoreboardVisible)
 		{
 			// Blur screen
 			window.draw(game.pauseBlurSprite);
+			game.backgroundLast = game.backgroundScoreboard;
 
 			// Score table
-			InitLeaderboard(uiState, game.numEatenFoods, game.font, uiState.vectorScoreTable);
+			InitScoreboard(uiState, game.numEatenFoods, game.font, uiState.vectorScoreTable);
 			
 			// Draw
+			uiState.scoreboardTextTitle.setPosition(window.getSize().x / 2.f, 40.f);
+			window.draw(uiState.scoreboardTextTitle);
+			
+			uiState.scoreboardTextInstructions.setPosition(window.getSize().x / 2.f, window.getSize().y - 50.f);
+			window.draw(uiState.scoreboardTextInstructions);
+			
 			float verticalIndentation = 0.f;
 			for (int i = 0; i < MAX_PLAYERS_TO_DISPLAY; ++i)
 			{
-				uiState.leaderboardNameText[i].setPosition(window.getSize().x / 2.f, window.getSize().y / 5.f + verticalIndentation);
-				window.draw(uiState.leaderboardNameText[i]);
+				uiState.scoreboardNameText[i].setPosition(window.getSize().x / 2.f, 90.f + verticalIndentation);
+				window.draw(uiState.scoreboardNameText[i]);
 				verticalIndentation += 40.f;
 			}
 		}

@@ -18,6 +18,7 @@ namespace ApplesGame
 		Winner,
 		GameOver,
 		QuitMenu,
+		Scoreboard,
 	};
 	
 	struct SGame
@@ -39,6 +40,7 @@ namespace ApplesGame
 		sf::Sprite backgroundGameZone;
 		sf::Sprite backgroundMenu;
 		sf::Sprite backgroundLast;
+		sf::Sprite backgroundScoreboard;
 		UIState uiState;
 		std::vector<GameState> gameStateStack;
 
@@ -57,6 +59,7 @@ namespace ApplesGame
 		sf::Texture barrierTexture;
 		sf::Texture grassTexture;
 		sf::Texture menuTexture;
+		sf::Texture scoreboardTexture;
 		sf::RenderTexture pauseBlurTexture;
 		sf::Sprite pauseBlurSprite;
 		sf::Font font;
@@ -76,6 +79,7 @@ namespace ApplesGame
 	void UpdatePlayingState(const sf::Event& event, SGame& game, float deltaTime);
 	void UpdateGame(SGame& game, float deltaTime, sf::RenderWindow& window, sf::Event event);
 	void UpdateGameOverState(SGame& game, sf::RenderWindow& window, float deltaTime);
+	void UpdateScoreboardState(SGame& game, sf::Event& event);
 
 	void PushGameState(SGame& game, GameState state);
 	void PopGameState(SGame& game);

@@ -7,7 +7,7 @@
 // Show only the first seven players
 constexpr int MAX_PLAYERS_TO_DISPLAY = 7;
 
-struct Leaderboard
+struct Scoreboard
 {
 	std::string name;
 	int score;
@@ -22,9 +22,9 @@ namespace ApplesGame
 		bool isWinnerTextVisible;
 		bool isMainMenuTextVisible;
 		bool isQuitMenuTextVisible;
-		bool isLeaderboardVisible;
+		bool isScoreboardVisible;
 
-		std::vector<Leaderboard> vectorScoreTable
+		std::vector<Scoreboard> vectorScoreTable
 		{
 			{"Zeus", 0}, {"Femida", 0}, {"Gerakl", 0}, {"Afrodita", 0}, {"Afina", 0},
 			{"Dionis", 0}, {"Ares", 0}, {"Germes", 0}, {"Morfey", 0}, {"YOU", 0}
@@ -37,19 +37,22 @@ namespace ApplesGame
 		sf::Text gameOverTextInstructions;
 		sf::Text winnerText;
 		sf::Text mainMenuTextStartGame;
+		sf::Text mainMenuTextScoreboard;
 		sf::Text mainMenuTextInsructions;
 		sf::Text mainMenuGameModeUnlimitedFoods;
 		sf::Text mainMenuGameModeAcceleration;
 		sf::Text quitMenuText;
 		sf::Text quitMenuTextVariants;
-		sf::Text leaderboardNameText[SIZE_LEADERBOARD];
+		sf::Text scoreboardNameText[SIZE_LEADERBOARD];
+		sf::Text scoreboardTextTitle;
+		sf::Text scoreboardTextInstructions;
 
 		sf::Sound sound;
 	};
 
 	void InitTextUI(sf::Text& text, const sf::Font& font, int size, int style, sf::Color color, const std::string& name = "-");
 	void InitUI(UIState& uiState, const sf::Font& font);
-	void InitLeaderboard(UIState& uiState, int numEatenFoods, const sf::Font& font, std::vector<Leaderboard>& scoreTable);
+	void InitScoreboard(UIState& uiState, int numEatenFoods, const sf::Font& font, std::vector<Scoreboard>& scoreTable);
 	void UpdateUI(UIState& uiState, const struct SGame& game);
 	void DrawUI(UIState& uiState, SGame& game, sf::RenderWindow& window);
 	void PlaySound(UIState& uiState, const sf::SoundBuffer& buffer);

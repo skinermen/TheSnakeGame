@@ -11,6 +11,7 @@ namespace ApplesGame
 		assert(game.foodTexture.loadFromFile(RESOURCES_PATH + "\\Mushroom.png"));
 		assert(game.barrierTexture.loadFromFile(RESOURCES_PATH + "\\Toadstool.png"));
 		assert(game.grassTexture.loadFromFile(RESOURCES_PATH + "\\Grass.png"));
+		assert(game.scoreboardTexture.loadFromFile(RESOURCES_PATH + "\\Scoreboard.png"));
 		assert(game.menuTexture.loadFromFile(RESOURCES_PATH + "\\Menu.png"));
 		assert(game.icon.loadFromFile(RESOURCES_PATH + "\\Icon.png"));
 		assert(game.font.loadFromFile(RESOURCES_PATH + "\\Fonts/Roboto-Regular.ttf"));
@@ -63,6 +64,7 @@ namespace ApplesGame
 		
 		game.backgroundGameZone.setTexture(game.grassTexture);
 		game.backgroundMenu.setTexture(game.menuTexture);
+		game.backgroundScoreboard.setTexture(game.scoreboardTexture);
 		
 		if (GetCurrentGameState(game) == GameState::Playing)
 		{
@@ -85,6 +87,11 @@ namespace ApplesGame
 		{
 			SwitchGameState(game, GameState::Playing);
 			InitGameState(game);
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
+		{
+			SwitchGameState(game, GameState::Scoreboard);
 		}
 		
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
@@ -119,8 +126,18 @@ namespace ApplesGame
 		
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 		{
-			window.close();
+			if (!game.onKeyEsc)
+			{
+				window.close();
+			}
+			game.onKeyEsc = true;
 		}
+
+		else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
+		{
+			game.onKeyEsc = false;
+		}
+		
 	}
 
 	void UpdateQuitMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game)
@@ -142,6 +159,24 @@ namespace ApplesGame
 		{
 			game.onKeyEsc = false;
 			window.close();
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		{
+			if (!game.onKeyEsc)
+			{
+				game.gameStateStack.pop_back();
+				game.onKeyEsc = false;
+				if (game.isPlayMusic)
+				{
+					game.musicMainTheme.play();
+				}
+			}
+			game.onKeyEsc = true;
+		}
+		else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
+		{
+			game.onKeyEsc = false;
 		}
 	}
 
@@ -178,19 +213,36 @@ namespace ApplesGame
 			PlaySound(game.uiState, game.winnerBuffer);
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 		{
-			if (!game.onKeyHoldTab)
+			if (!game.onKeyEsc)
 			{
-				game.isScreenLeaderboard = true;
+				game.gameStateStack.push_back(GameState::QuitMenu);
+				game.musicMainTheme.pause();
+				game.onKeyEsc = true;
 			}
-			game.onKeyHoldTab = true;
+			game.onKeyEsc = true;
 		}
-		
-		else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Tab)
+		else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
 		{
-			game.isScreenLeaderboard = false;
-			game.onKeyHoldTab = false;
+			game.onKeyEsc = false;
+		}
+	}
+
+	void UpdateScoreboardState(SGame& game, sf::Event& event)
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		{
+			if (!game.onKeyEsc)
+			{
+				SwitchGameState(game,GameState::MainMenu);
+			}
+			game.onKeyEsc = true;
+		}
+
+		else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
+		{
+			game.onKeyEsc = false;
 		}
 	}
 
@@ -214,6 +266,9 @@ namespace ApplesGame
 			break;
 		case ApplesGame::GameState::QuitMenu:
 			UpdateQuitMenuState(event, window, game);
+			break;
+		case ApplesGame::GameState::Scoreboard:
+			UpdateScoreboardState(game, event);
 			break;
 		default:
 			break;
@@ -326,25 +381,7 @@ namespace ApplesGame
 
 	void HandleInput(const sf::Event& event, sf::RenderWindow& window, SGame& game)
 	{
-		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape &&
-			(GetCurrentGameState(game) == GameState::Playing || GetCurrentGameState(game) == GameState::QuitMenu))
-		{
-			if (!game.onKeyEsc)
-			{
-				game.gameStateStack.push_back(GameState::QuitMenu);
-				game.musicMainTheme.pause();
-				game.onKeyEsc = true;
-			}
-			else if (game.onKeyEsc && sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-			{
-				game.gameStateStack.pop_back();
-				game.onKeyEsc = false;
-				if (game.isPlayMusic)
-				{
-					game.musicMainTheme.play();
-				}
-			}
-		}
+		
 	}
 
 	void ToggleGameMode(SGame& game, const int modeSelection)
@@ -399,6 +436,11 @@ namespace ApplesGame
 		for (SBarrier& barrier : game.barriersVec)
 		{
 			DrawBarrier(barrier, window);
+		}
+
+		if (GetCurrentGameState(game) == GameState::Scoreboard)
+		{
+			window.draw(game.backgroundLast);
 		}
 
 		// Draw UI
