@@ -6,7 +6,7 @@ namespace sf
 	class Sprite;
 }
 
-namespace ApplesGame
+namespace SnakeGame
 {
 	struct Vector2D
 	{
@@ -14,7 +14,13 @@ namespace ApplesGame
 		float y = 0;
 	};
 
-	typedef Vector2D Position2D;
+	struct Position2D
+	{
+		int x = 0;
+		int y = 0;
+	};
+
+	// typedef Vector2D Position2D;
 
 	Position2D GetRandomPositionInScreen(float screenWidth, float screenHeight);
 	bool CheckScreenBorders(Position2D rectPosition, const float rectSize, const int screen_width, const int screen_height);

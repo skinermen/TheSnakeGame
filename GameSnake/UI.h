@@ -13,7 +13,7 @@ struct Scoreboard
 	int score;
 };
 
-namespace ApplesGame
+namespace SnakeGame
 {
 	struct UIState
 	{

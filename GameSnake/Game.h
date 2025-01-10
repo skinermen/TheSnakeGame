@@ -8,7 +8,7 @@
 #include <string>
 #include <pplwin.h>
 
-namespace ApplesGame
+namespace SnakeGame
 {
 	enum class GameState
 	{
@@ -43,6 +43,8 @@ namespace ApplesGame
 		sf::Sprite backgroundScoreboard;
 		UIState uiState;
 		std::vector<GameState> gameStateStack;
+		int field[FIELD_SIZE_X][FIELD_SIZE_Y];
+
 
 		// Init object state
 		SPlayer player;
@@ -53,15 +55,17 @@ namespace ApplesGame
 		int gameMode = 0;
 
 		// Resources
-		sf::Texture playerTextureSide;
-		sf::Texture playerTextureTop;
+		sf::Texture snakeTextureHead;
+		sf::Texture snakeTextureBody;
 		sf::Texture foodTexture;
 		sf::Texture barrierTexture;
+		sf::Texture noneTexture;
 		sf::Texture grassTexture;
 		sf::Texture menuTexture;
 		sf::Texture scoreboardTexture;
 		sf::RenderTexture pauseBlurTexture;
 		sf::Sprite pauseBlurSprite;
+		sf::Sprite noneSprite;
 		sf::Font font;
 		sf::SoundBuffer eatFoodBuffer;
 		sf::SoundBuffer deathBuffer;
@@ -76,8 +80,8 @@ namespace ApplesGame
 	
 	void UpdateMainMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game);
 	void UpdateQuitMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game);
-	void UpdatePlayingState(const sf::Event& event, SGame& game, float deltaTime);
-	void UpdateGame(SGame& game, float deltaTime, sf::RenderWindow& window, sf::Event event);
+	void UpdatePlayingState(const sf::Event& event, SGame& game, float currentTime);
+	void UpdateGame(SGame& game, float currentTime, sf::RenderWindow& window, sf::Event event);
 	void UpdateGameOverState(SGame& game, sf::RenderWindow& window, float deltaTime);
 	void UpdateScoreboardState(SGame& game, sf::Event& event);
 
@@ -90,6 +94,11 @@ namespace ApplesGame
 
 	void ShutdownPlayingState(SGame& game);
 	void InitGameOverState(SGame& game);
+
+	void ClearField(SGame& game);
+	int GetRandomEmptyCell(const SGame& game);
+	// void DrawField(SGame& game, SFood& food, SPlayer& player, sf::RenderWindow& window);
+	
 	void ShutdownGameOverState(SGame& game);
 	
 	void DrawGame(SGame& game, sf::RenderWindow& window);

@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <random>
 
-namespace ApplesGame
+namespace SnakeGame
 {
 	Position2D GetRandomPositionInScreen(float screenWidth, float screenHeight)
 	{

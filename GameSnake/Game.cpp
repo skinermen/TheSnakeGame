@@ -2,15 +2,16 @@
 #include <cassert>
 #include <random>
 
-namespace ApplesGame
+namespace SnakeGame
 {
 	void InitGame(SGame& game, sf::RenderWindow& window)
 	{
-		assert(game.playerTextureSide.loadFromFile(RESOURCES_PATH + "\\HedgehogSide.png"));
-		assert(game.playerTextureTop.loadFromFile(RESOURCES_PATH + "\\HedgehogTop.png"));
-		assert(game.foodTexture.loadFromFile(RESOURCES_PATH + "\\Mushroom.png"));
-		assert(game.barrierTexture.loadFromFile(RESOURCES_PATH + "\\Toadstool.png"));
-		assert(game.grassTexture.loadFromFile(RESOURCES_PATH + "\\Grass.png"));
+		assert(game.snakeTextureHead.loadFromFile(RESOURCES_PATH + "\\snake.png"));
+		assert(game.snakeTextureBody.loadFromFile(RESOURCES_PATH + "\\Snake_Body.png"));
+		assert(game.foodTexture.loadFromFile(RESOURCES_PATH + "\\Apple.png"));
+		assert(game.barrierTexture.loadFromFile(RESOURCES_PATH + "\\wall.png"));
+		assert(game.noneTexture.loadFromFile(RESOURCES_PATH + "\\none.png"));
+		// assert(game.grassTexture.loadFromFile(RESOURCES_PATH + "\\Grass.png"));
 		assert(game.scoreboardTexture.loadFromFile(RESOURCES_PATH + "\\Scoreboard.png"));
 		assert(game.menuTexture.loadFromFile(RESOURCES_PATH + "\\Menu.png"));
 		assert(game.icon.loadFromFile(RESOURCES_PATH + "\\Icon.png"));
@@ -19,17 +20,20 @@ namespace ApplesGame
 		assert(game.deathBuffer.loadFromFile(RESOURCES_PATH + "\\Death.wav"));
 		assert(game.winnerBuffer.loadFromFile(RESOURCES_PATH + "\\Winner.wav"));
 		assert(game.musicMainTheme.openFromFile(RESOURCES_PATH + "\\FrenchMainMusic.wav"));
+
+		game.noneSprite.setTexture(game.noneTexture);
 		
 		window.setIcon(32, 32, game.icon.getPixelsPtr());
 		SwitchGameState(game, GameState::MainMenu);
 		InitGameState(game);
 		InitUI(game.uiState, game.font);
+		ClearField(game);
 	}
 
 	void InitGameState(SGame& game)
 	{
 		// Set default values
-		game.numFoods = GetRandomInt(NUM_FOOD_MIN, NUM_FOOD_MAX);
+		game.numFoods = NUM_FOOD;
 		game.numEatenFoods = 0;
 		game.timeSinceGameOver = 0.f;
 
@@ -63,8 +67,11 @@ namespace ApplesGame
 		}
 		
 		game.backgroundGameZone.setTexture(game.grassTexture);
+		SetSpriteSize(game.backgroundGameZone, SCREEN_WIDTH, SCREEN_HEIGHT);
 		game.backgroundMenu.setTexture(game.menuTexture);
+		SetSpriteSize(game.backgroundMenu, SCREEN_WIDTH, SCREEN_HEIGHT);
 		game.backgroundScoreboard.setTexture(game.scoreboardTexture);
+		SetSpriteSize(game.backgroundScoreboard, SCREEN_WIDTH, SCREEN_HEIGHT);
 		
 		if (GetCurrentGameState(game) == GameState::Playing)
 		{
@@ -81,6 +88,78 @@ namespace ApplesGame
 		game.timeSinceGameOver = 0.f;
 	}
 
+	void ClearField(SGame& game)
+	{
+		for (int i = 0; i < FIELD_SIZE_X; i++)
+		{
+			for (int j = 0; j < FIELD_SIZE_Y; j++)
+			{
+				game.field[i][j] = FIELD_CELL_TYPE_NONE;
+			}
+		}
+		for (int i = 0; i < game.player.snakeLength; i++)
+		{
+			game.field[game.player.position.x - i][game.player.position.y] = game.player.snakeLength - i;
+		}
+		AddApple(game);
+	}
+
+	int GetRandomEmptyCell(const SGame& game)
+	{
+		int emptyCellCount = 0;
+		for (int i = 0; i < FIELD_SIZE_X; i++)
+		{
+			for (int j = 0; j < FIELD_SIZE_Y; j++)
+			{
+				if (game.field[i][j] == FIELD_CELL_TYPE_NONE)
+				{
+					emptyCellCount++;
+				}
+			}
+		}
+		int targetEmptyCellIndex = rand() % emptyCellCount;
+		int emptyCellIndex = 0;
+		for (int i = 0; i < FIELD_SIZE_X; i++)
+		{
+			for (int j = 0; j < FIELD_SIZE_Y; j++)
+			{
+				if (game.field[i][j] == FIELD_CELL_TYPE_NONE)
+				{
+					if (emptyCellIndex == targetEmptyCellIndex)
+					{
+						return  i * FIELD_SIZE_X + j;
+					}
+					emptyCellIndex++;
+				}
+			}
+		}
+		return -1;
+	}
+
+	// void DrawField(SGame& game, SFood& food, SPlayer& player, sf::RenderWindow& window)
+	// {
+	// 	for (int i = 0; i < FIELD_SIZE_X; i++)
+	// 	{
+	// 		for (int j = 0; j < FIELD_SIZE_Y; j++)
+	// 		{
+	// 			switch (game.field[i][j])
+				// {
+				// case FIELD_CELL_TYPE_NONE:
+				// 	game.noneSprite.setPosition(i * CELL_SIZE, j * CELL_SIZE);
+				// 	window.draw(game.noneSprite);
+				// 	break;
+				// case FIELD_CELL_TYPE_APPLE:
+				// 	food.sprite.setPosition(i * CELL_SIZE, j * CELL_SIZE);
+				// 	window.draw(food.sprite);
+				// 	break;
+				// case FIELD_CELL_TYPE_PLAYER:
+				// 	player.sprite.setPosition(i * CELL_SIZE, j * CELL_SIZE);
+				// 	window.draw(player.sprite);
+	// 			}
+	// 		}
+	// 	}
+	// }
+	
 	void UpdateMainMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game)
 	{
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
@@ -202,9 +281,10 @@ namespace ApplesGame
 		}
 	}
 
-	void UpdatePlayingState(const sf::Event& event, SGame& game, float deltaTime)
+	void UpdatePlayingState(const sf::Event& event, SGame& game, float currentTime)
 	{
-		MovePlayer(game, deltaTime);
+		HandleInput(game.player);
+		MovePlayer(game, currentTime);
 		FindPlayerCollision(game);
 
 		if (!(game.gameMode & MASK_INFINIT_FOODS) && game.numEatenFoods == game.numFoods)
@@ -246,28 +326,28 @@ namespace ApplesGame
 		}
 	}
 
-	void UpdateGame(SGame& game, float deltaTime, sf::RenderWindow& window, sf::Event event)
+	void UpdateGame(SGame& game, float currentTime, sf::RenderWindow& window, sf::Event event)
 	{
 		GameState gameState = game.gameStateStack.back();
 		
 		switch (gameState)
 		{
-		case ApplesGame::GameState::Playing:
-			UpdatePlayingState(event, game, deltaTime);
+		case SnakeGame::GameState::Playing:
+			UpdatePlayingState(event, game, currentTime);
 			break;
-		case ApplesGame::GameState::GameOver:
-			UpdateGameOverState(game, window, deltaTime);
+		case SnakeGame::GameState::GameOver:
+			UpdateGameOverState(game, window, currentTime);
 			break;
-		case ApplesGame::GameState::Winner:
-			UpdateGameOverState(game, window, deltaTime);
+		case SnakeGame::GameState::Winner:
+			UpdateGameOverState(game, window, currentTime);
 			break;
-		case ApplesGame::GameState::MainMenu:
+		case SnakeGame::GameState::MainMenu:
 			UpdateMainMenuState(event, window, game);
 			break;
-		case ApplesGame::GameState::QuitMenu:
+		case SnakeGame::GameState::QuitMenu:
 			UpdateQuitMenuState(event, window, game);
 			break;
-		case ApplesGame::GameState::Scoreboard:
+		case SnakeGame::GameState::Scoreboard:
 			UpdateScoreboardState(game, event);
 			break;
 		default:
@@ -340,12 +420,12 @@ namespace ApplesGame
 
 		switch (newState)
 		{
-		case ApplesGame::GameState::Playing:
+		case SnakeGame::GameState::Playing:
 			{
 				InitGameState(game);
 				break;
 			}
-		case ApplesGame::GameState::GameOver:
+		case SnakeGame::GameState::GameOver:
 			{
 				InitGameOverState(game);
 				break;
@@ -412,15 +492,30 @@ namespace ApplesGame
 	void DrawGame(SGame& game, sf::RenderWindow& window)
 	{
 		// Draw Background Game Zone
-		if (GetCurrentGameState(game) == GameState::Playing || GetCurrentGameState(game) == GameState::GameOver ||
-			GetCurrentGameState(game) == GameState::Winner)
+		// if (GetCurrentGameState(game) == GameState::Playing || GetCurrentGameState(game) == GameState::GameOver ||
+		// 	GetCurrentGameState(game) == GameState::Winner)
+		// {
+		// 	window.draw(game.backgroundGameZone);
+		// }
+		// if (GetPreviousGameState(game) == GameState::Playing || GetPreviousGameState(game) == GameState::GameOver ||
+		// 	GetPreviousGameState(game) == GameState::Winner)
+		// {
+		// 	window.draw(game.backgroundGameZone);
+		// }
+		
+		// Draw Background
+		for (int i = 0; i < FIELD_SIZE_X; i++)
 		{
-			window.draw(game.backgroundGameZone);
-		}
-		if (GetPreviousGameState(game) == GameState::Playing || GetPreviousGameState(game) == GameState::GameOver ||
-			GetPreviousGameState(game) == GameState::Winner)
-		{
-			window.draw(game.backgroundGameZone);
+			for (int j = 0; j < FIELD_SIZE_Y; j++)
+			{
+				switch (game.field[i][j])
+				{
+				case FIELD_CELL_TYPE_NONE:
+					game.noneSprite.setPosition(i * CELL_SIZE, j * CELL_SIZE);
+					window.draw(game.noneSprite);
+					break;
+				}
+			}
 		}
 		
 		// Draw Player
@@ -429,7 +524,7 @@ namespace ApplesGame
 		// Draw Food
 		for (SFood& food : game.foodsVec)
 		{
-			DrawFood(food, window);
+			DrawFood(food, game, window);
 		}
 
 		// Draw Barrier

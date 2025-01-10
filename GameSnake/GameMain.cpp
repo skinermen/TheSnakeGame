@@ -2,20 +2,20 @@
 #include <SFML/Audio.hpp>
 #include "Game.h"
 
-using namespace ApplesGame;
+using namespace SnakeGame;
 
 int main()
 {
 	// Init random number generator
 	int seed = (int)time(nullptr);
 	srand(seed);
-
+	
 	// Init Window
-	sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "The Adventures of a hedgehog");
+	sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Snake Game");
 
 	// Game initialization
 	SGame game;
-	InitGame(game, window);
+	InitGame(game,window);
 
 	// Init game clocks
 	sf::Clock gameClock;
@@ -37,7 +37,7 @@ int main()
 				break;
 			}
 
-			HandleInput(event, window, game);
+			// HandleInput(event, window, game);
 		}
 
 		// Calculate time delta
@@ -46,7 +46,7 @@ int main()
 		lastTime = currentTime;
 
 		//Update game state
-		UpdateGame(game, deltaTime, window, event);
+		UpdateGame(game, currentTime, window, event);
 
 		// Draw game
 		window.clear();

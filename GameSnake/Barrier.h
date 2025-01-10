@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Math.h"
 
-namespace ApplesGame
+namespace SnakeGame
 {
 	struct SBarrier
 	{

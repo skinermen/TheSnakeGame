@@ -3,7 +3,7 @@
 #include <random>
 #include "Game.h"
 
-namespace ApplesGame
+namespace SnakeGame
 {
 	void InitTextUI(sf::Text& text, const sf::Font& font, int size, int style, sf::Color color, const std::string& name)
 	{
@@ -63,7 +63,7 @@ namespace ApplesGame
 			}
 			else
 			{
-				item.score = GetRandomInt(5, NUM_FOOD_MAX - 5);
+				item.score = GetRandomInt(10, 20);
 			}
 		}
 	}

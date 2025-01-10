@@ -3,7 +3,7 @@
 #include "Math.h"
 #include <list>
 
-namespace ApplesGame
+namespace SnakeGame
 {
     struct MenuItem
     {
