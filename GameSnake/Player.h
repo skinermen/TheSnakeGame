@@ -24,7 +24,7 @@ namespace SnakeGame
 		sf::Sprite spriteHead;
 		sf::Sprite spriteBody;
 		int snakeLength;
-		std::queue<PlayerDirection> directionQueue; // Очередь направлений
+		// std::queue<PlayerDirection> directionQueue; // Очередь направлений
 	};
 
 	struct SGame;

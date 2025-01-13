@@ -133,31 +133,35 @@ namespace SnakeGame
 	{
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		{
-			if (player.directionQueue.size() < 2 && player.direction != PlayerDirection::Left)
-			{
-				player.directionQueue.push(PlayerDirection::Right);
-			}
+			// if (player.directionQueue.size() < 2 && player.direction != PlayerDirection::Left)
+			// {
+			// 	player.directionQueue.push(PlayerDirection::Right);
+			// }
+			player.direction = PlayerDirection::Right;
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		{
-			if (player.directionQueue.size() < 2 && player.direction != PlayerDirection::Down)
-			{
-				player.directionQueue.push(PlayerDirection::Up);
-			}
+			// if (player.directionQueue.size() < 2 && player.direction != PlayerDirection::Down)
+			// {
+			// 	player.directionQueue.push(PlayerDirection::Up);
+			// }
+			player.direction = PlayerDirection::Up;
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		{
-			if (player.directionQueue.size() < 2 && player.direction != PlayerDirection::Right)
-			{
-				player.directionQueue.push(PlayerDirection::Left);
-			}
+			// if (player.directionQueue.size() < 2 && player.direction != PlayerDirection::Right)
+			// {
+			// 	player.directionQueue.push(PlayerDirection::Left);
+			// }
+			player.direction = PlayerDirection::Left;
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		{
-			if (player.directionQueue.size() < 2 && player.direction != PlayerDirection::Up)
-			{
-				player.directionQueue.push(PlayerDirection::Down);
-			}
+			// if (player.directionQueue.size() < 2 && player.direction != PlayerDirection::Up)
+			// {
+			// 	player.directionQueue.push(PlayerDirection::Down);
+			// }
+			player.direction = PlayerDirection::Down;
 		}
 	} ////?????
 	
@@ -165,94 +169,151 @@ namespace SnakeGame
 	{
 		SPlayer& player = game.player;
 
-		if (GetCurrentGameState(game) == GameState::Playing)
-		{
-			// Обработка очереди направлений
-			if (!player.directionQueue.empty())
-		 {
-		     PlayerDirection nextDirection = player.directionQueue.front();
-		     player.directionQueue.pop();
-		      if ((player.direction == PlayerDirection::Up && nextDirection != PlayerDirection::Down) ||
-		          (player.direction == PlayerDirection::Down && nextDirection != PlayerDirection::Up) ||
-		           (player.direction == PlayerDirection::Left && nextDirection != PlayerDirection::Right) ||
-		           (player.direction == PlayerDirection::Right && nextDirection != PlayerDirection::Left))
-		      {
-		           player.direction = nextDirection;
-		        }
-		    }
-	   }
-
-		// Движение змейки, как и раньше
-	 switch (player.direction)
-	 {
-	 case PlayerDirection::Right:
-	     if (currentTime - player.lastUpdateTime >= player.movementInterval)
-	     {
-		        player.position.x++;
-		       if (player.position.x > FIELD_SIZE_X - 1) player.position.x = 0;
-		        player.lastUpdateTime = currentTime;
-		    }
-		   break;
-		case PlayerDirection::Up:
-		    if (currentTime - player.lastUpdateTime >= player.movementInterval)
-	     {
-	         player.position.y--;
-		     if (player.position.y < 0) player.position.y = FIELD_SIZE_Y - 1;
-		       player.lastUpdateTime = currentTime;
-	     }
-	      break;
-	   case PlayerDirection::Left:
-	      if (currentTime - player.lastUpdateTime >= player.movementInterval)
-	       {
-	           player.position.x--;
-	           if (player.position.x < 0) player.position.x = FIELD_SIZE_X - 1;
-	           player.lastUpdateTime = currentTime;
-	       }
-	       break;
-	   case PlayerDirection::Down:
-	     if (currentTime - player.lastUpdateTime >= player.movementInterval)
-	     {
-	           player.position.y++;
-	           if (player.position.y > FIELD_SIZE_Y - 1) player.position.y = 0;
-	            player.lastUpdateTime = currentTime;
-	       }
-	        break;
-	  }
-
-    	// Проверяем, что находится на новой позиции головы ПЕРЕД обновлением поля
-    	if (game.field[game.player.position.x][game.player.position.y] > FIELD_CELL_TYPE_NONE)
-    	{
-    		// Если змейка врезается в себя, игра окончена
-    		game.gameStateStack.push_back(GameState::GameOver);
-    		return;
-    	}
-    	else if (game.field[game.player.position.x][game.player.position.y] == FIELD_CELL_TYPE_APPLE)
-    	{
-    		// Увеличиваем длину змейки и добавляем новое яблоко
-    		game.player.snakeLength++;
-    		GrowSnake(game);
-    		AddApple(game);
-    		PlaySound(game.uiState, game.eatFoodBuffer);
-    	}
-
-        // Обновляем поле: добавляем новую голову
-        game.field[game.player.position.x][game.player.position.y] = game.player.snakeLength + 1;
-
-        // Уменьшаем "время жизни" каждой части тела змейки
-        for (int i = 0; i < FIELD_SIZE_X; i++)
+    if (GetCurrentGameState(game) == GameState::Playing)
+    {
+        if (currentTime - player.lastUpdateTime >= player.movementInterval)
         {
-            for (int j = 0; j < FIELD_SIZE_Y; j++)
+            // Движение в зависимости от текущего направления
+            switch (player.direction)
             {
-                if (game.field[i][j] > FIELD_CELL_TYPE_NONE)
+            case PlayerDirection::Right:
+                player.position.x++;
+                if (player.position.x >= FIELD_SIZE_X) player.position.x = 0;
+                break;
+            case PlayerDirection::Left:
+                player.position.x--;
+                if (player.position.x < 0) player.position.x = FIELD_SIZE_X - 1;
+                break;
+            case PlayerDirection::Up:
+                player.position.y--;
+                if (player.position.y < 0) player.position.y = FIELD_SIZE_Y - 1;
+                break;
+            case PlayerDirection::Down:
+                player.position.y++;
+                if (player.position.y >= FIELD_SIZE_Y) player.position.y = 0;
+                break;
+            }
+
+            player.lastUpdateTime = currentTime;
+
+            // Проверка столкновений
+            if (game.field[player.position.x][player.position.y] > FIELD_CELL_TYPE_NONE)
+            {
+                game.gameStateStack.push_back(GameState::GameOver);
+                return;
+            }
+            else if (game.field[player.position.x][player.position.y] == FIELD_CELL_TYPE_APPLE)
+            {
+                player.snakeLength++;
+                GrowSnake(game);
+                AddApple(game);
+                PlaySound(game.uiState, game.eatFoodBuffer);
+            }
+
+            // Обновление игрового поля
+            game.field[player.position.x][player.position.y] = player.snakeLength + 1;
+            for (int i = 0; i < FIELD_SIZE_X; i++)
+            {
+                for (int j = 0; j < FIELD_SIZE_Y; j++)
                 {
-                    game.field[i][j]--;
+                    if (game.field[i][j] > FIELD_CELL_TYPE_NONE)
+                    {
+                        game.field[i][j]--;
+                    }
                 }
             }
         }
-
-        // Обновляем время последнего перемещения
-        game.player.lastUpdateTime = currentTime;
     }
+	}
+	
+		// SPlayer& player = game.player;
+		//
+		// if (GetCurrentGameState(game) == GameState::Playing)
+		// {
+			// Обработка очереди направлений
+			// if (!player.directionQueue.empty())
+		 // {
+		 //     PlayerDirection nextDirection = player.directionQueue.front();
+		 //     player.directionQueue.pop();
+		 //      if ((player.direction == PlayerDirection::Up && nextDirection != PlayerDirection::Down) ||
+		 //          (player.direction == PlayerDirection::Down && nextDirection != PlayerDirection::Up) ||
+		 //           (player.direction == PlayerDirection::Left && nextDirection != PlayerDirection::Right) ||
+		 //           (player.direction == PlayerDirection::Right && nextDirection != PlayerDirection::Left))
+		 //      {
+		 //           player.direction = nextDirection;
+		 //      }
+		 // }
+		// }
+		// Движение в зависимости от текущего направления
+	 // switch (player.direction)
+	 // {
+	 // case PlayerDirection::Right:
+	 //     if (currentTime - player.lastUpdateTime >= player.movementInterval)
+	 //     {
+		//         player.position.x++;
+		//        if (player.position.x > FIELD_SIZE_X - 1) player.position.x = 0;
+		//         player.lastUpdateTime = currentTime;
+		//     }
+		//    break;
+		// case PlayerDirection::Up:
+		//     if (currentTime - player.lastUpdateTime >= player.movementInterval)
+	 //     {
+	 //         player.position.y--;
+		//      if (player.position.y < 0) player.position.y = FIELD_SIZE_Y - 1;
+		//        player.lastUpdateTime = currentTime;
+	 //     }
+	 //      break;
+	 //   case PlayerDirection::Left:
+	 //      if (currentTime - player.lastUpdateTime >= player.movementInterval)
+	 //       {
+	 //           player.position.x--;
+	 //           if (player.position.x < 0) player.position.x = FIELD_SIZE_X - 1;
+	 //           player.lastUpdateTime = currentTime;
+	 //       }
+	 //       break;
+	 //   case PlayerDirection::Down:
+	 //     if (currentTime - player.lastUpdateTime >= player.movementInterval)
+	 //     {
+	 //           player.position.y++;
+	 //           if (player.position.y > FIELD_SIZE_Y - 1) player.position.y = 0;
+	 //            player.lastUpdateTime = currentTime;
+	 //       }
+	 //        break;
+	 //  }
+  //
+  //   	// Проверяем, что находится на новой позиции головы ПЕРЕД обновлением поля
+  //   	if (game.field[game.player.position.x][game.player.position.y] > FIELD_CELL_TYPE_NONE)
+  //   	{
+  //   		// Если змейка врезается в себя, игра окончена
+  //   		game.gameStateStack.push_back(GameState::GameOver);
+  //   		return;
+  //   	}
+  //   	else if (game.field[game.player.position.x][game.player.position.y] == FIELD_CELL_TYPE_APPLE)
+  //   	{
+  //   		// Увеличиваем длину змейки и добавляем новое яблоко
+  //   		game.player.snakeLength++;
+  //   		GrowSnake(game);
+  //   		AddApple(game);
+  //   		PlaySound(game.uiState, game.eatFoodBuffer);
+  //   	}
+  //
+  //       // Обновляем поле: добавляем новую голову
+  //       game.field[game.player.position.x][game.player.position.y] = game.player.snakeLength + 1;
+  //
+  //       // Уменьшаем "время жизни" каждой части тела змейки
+  //       for (int i = 0; i < FIELD_SIZE_X; i++)
+  //       {
+  //           for (int j = 0; j < FIELD_SIZE_Y; j++)
+  //           {
+  //               if (game.field[i][j] > FIELD_CELL_TYPE_NONE)
+  //               {
+  //                   game.field[i][j]--;
+  //               }
+  //           }
+  //       }
+  //
+  //       // Обновляем время последнего перемещения
+  //       game.player.lastUpdateTime = currentTime;
 
 
 	void FindPlayerCollision(SGame& game)
