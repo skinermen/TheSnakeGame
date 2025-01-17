@@ -1,9 +1,9 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include "Player.h"
-#include "Food.h"
-#include "Barrier.h"
+#include "Snake.h"
+#include "Apple.h"
+#include "Wall.h"
 #include "UI.h"
 #include <string>
 #include <pplwin.h>
@@ -34,8 +34,9 @@ namespace SnakeGame
 		bool onKeyEsc = false;
 		
 		// Global game data
-		int numFoods = 0;
-		int numEatenFoods = 0;
+		int numApples = 0;
+		int numWalls = 0;
+		int numEatenApples = 0;
 		float timeSinceGameOver = 0.f;
 		sf::Sprite backgroundGameZone;
 		sf::Sprite backgroundMenu;
@@ -47,9 +48,9 @@ namespace SnakeGame
 
 
 		// Init object state
-		SPlayer player;
-		std::vector<SFood> foodsVec;
-		std::vector<SBarrier> barriersVec;
+		SSnake snake;
+		std::vector<SApple> applesVec;
+		std::vector<SWall> wallsVec;
 
 		// Game mode data
 		int gameMode = 0;
@@ -57,8 +58,8 @@ namespace SnakeGame
 		// Resources
 		sf::Texture snakeTextureHead;
 		sf::Texture snakeTextureBody;
-		sf::Texture foodTexture;
-		sf::Texture barrierTexture;
+		sf::Texture appleTexture;
+		sf::Texture wallTexture;
 		sf::Texture noneTexture;
 		sf::Texture grassTexture;
 		sf::Texture menuTexture;
@@ -67,7 +68,7 @@ namespace SnakeGame
 		sf::Sprite pauseBlurSprite;
 		sf::Sprite noneSprite;
 		sf::Font font;
-		sf::SoundBuffer eatFoodBuffer;
+		sf::SoundBuffer eatAppleBuffer;
 		sf::SoundBuffer deathBuffer;
 		sf::SoundBuffer winnerBuffer;
 		sf::Music musicMainTheme;
@@ -77,6 +78,7 @@ namespace SnakeGame
 
 	void InitGame(SGame& game, sf::RenderWindow& window);
 	void InitGameState(SGame& game);
+	void InitField (SGame& game);
 	
 	void UpdateMainMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game);
 	void UpdateQuitMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game);
@@ -91,20 +93,13 @@ namespace SnakeGame
 	void SwitchGameStateInternal(SGame& game, GameState oldState, GameState newState);
 	GameState GetCurrentGameState(const SGame& game);
 	GameState GetPreviousGameState(const SGame& game);
-
-	void ShutdownPlayingState(SGame& game);
-	void InitGameOverState(SGame& game);
-
-	void ClearField(SGame& game);
-	int GetRandomEmptyCell(const SGame& game);
-	// void DrawField(SGame& game, SFood& food, SPlayer& player, sf::RenderWindow& window);
 	
-	void ShutdownGameOverState(SGame& game);
+	void InitGameOverState(SGame& game);
+	
+	int GetRandomEmptyCell(const SGame& game);
 	
 	void DrawGame(SGame& game, sf::RenderWindow& window);
-	void DeinitializeGame(SGame& game);
-
-	void HandleInput(const sf::Event& event, sf::RenderWindow& window, SGame& game);
+	
 	void ToggleGameMode(SGame& game, const int modeSelection);
 	std::string GetButtonText(const SGame& game, const int modeSelection);
 }

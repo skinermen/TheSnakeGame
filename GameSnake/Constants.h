@@ -5,7 +5,7 @@ namespace SnakeGame
 {
 #define FIELD_CELL_TYPE_NONE 0
 #define FIELD_CELL_TYPE_APPLE -1
-#define FIELD_CELL_TYPE_PLAYER 2
+#define FIELD_CELL_TYPE_WALL -2
 	const int FIELD_SIZE_X = 35;
 	const int FIELD_SIZE_Y = 25;
 	const int CELL_SIZE = 32;
@@ -15,14 +15,14 @@ namespace SnakeGame
 	// Size
 	constexpr int SCREEN_WIDTH = FIELD_SIZE_X * CELL_SIZE;
 	constexpr int SCREEN_HEIGHT = FIELD_SIZE_Y * CELL_SIZE;
-	constexpr float PLAYER_SIZE = CELL_SIZE;
+	constexpr float SNAKE_SEGMENT_SIZE = CELL_SIZE;
 	constexpr float FOOD_SIZE = CELL_SIZE;
-	constexpr float BARRIER_SIZE = CELL_SIZE;
+	constexpr float WALL_SIZE = CELL_SIZE;
 	constexpr int SIZE_LEADERBOARD = 10;
 
 	// Num
-	constexpr int NUM_FOOD = 1;
-	constexpr int NUM_BARRIERS = 10;
+	constexpr int NUM_APPLES = 1;
+	constexpr int NUM_WALLS = 2 * (FIELD_SIZE_X + FIELD_SIZE_Y);
 
 	// Other
 	constexpr float INITIAL_SPEED = 0.1f; // Интервал между перемещениями (в секундах)

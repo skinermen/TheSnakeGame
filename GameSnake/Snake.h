@@ -6,7 +6,7 @@
 
 namespace SnakeGame
 {
-	enum class PlayerDirection
+	enum class SnakeDirection
 	{
 		Right = 0,
 		Up,
@@ -15,24 +15,24 @@ namespace SnakeGame
 		StartPosition
 	};
 
-	struct SPlayer
+	struct SSnake
 	{
 		Position2D position;
 		float lastUpdateTime = 0.0f; // Время последнего обновления
 		float movementInterval = INITIAL_SPEED; // Интервал между перемещениями (в секундах)
-		PlayerDirection direction = PlayerDirection::StartPosition;
+		SnakeDirection direction = SnakeDirection::StartPosition;
 		sf::Sprite spriteHead;
 		sf::Sprite spriteBody;
 		int snakeLength;
-		// std::queue<PlayerDirection> directionQueue; // Очередь направлений
+		std::queue<SnakeDirection> directionQueue; // Очередь направлений
 	};
 
 	struct SGame;
 
-	void InitPlayer(SPlayer& player, SGame& game);
-	void DrawPlayer(SPlayer& player, SGame& game, sf::RenderWindow& window);
+	void InitSnake(SSnake& snake, SGame& game);
+	void AddSnake(SGame& game);
+	void DrawSnake(SSnake& snake, SGame& game, sf::RenderWindow& window);
 	void GrowSnake(SGame& game);
-	void HandleInput(SPlayer& player);
-	void MovePlayer(SGame& game, float currentTime);
-	void FindPlayerCollision(SGame& game);
+	void HandleInput(SSnake& player);
+	void MoveSnake(SGame& game, float currentTime);
 }

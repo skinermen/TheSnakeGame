@@ -4,7 +4,7 @@
 
 namespace SnakeGame
 {
-	struct SFood
+	struct SApple
 	{
 		Position2D position;
 		sf::Sprite sprite;
@@ -12,7 +12,7 @@ namespace SnakeGame
 
 	struct SGame;
 
-	void InitFood(SFood& food, const SGame& game);
+	void InitApple(SApple& apple, const SGame& game);
 	void AddApple(SGame& game);
-	void DrawFood(SFood& food, SGame& game, sf::RenderWindow& window);
+	void DrawApple(SApple& apple, SGame& game, sf::RenderWindow& window);
 }
