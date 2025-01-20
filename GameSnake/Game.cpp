@@ -33,9 +33,8 @@ namespace SnakeGame
 	void InitGameState(SGame& game)
 	{
 		// Set default values
-		game.numApples = NUM_APPLES;
-		game.numWalls = NUM_WALLS;
 		game.numEatenApples = 0;
+		game.numScores = 0;
 		game.timeSinceGameOver = 0.f;
 
 		// Init Player
@@ -47,12 +46,9 @@ namespace SnakeGame
 			game.wallsVec.clear();
 		}
 		
-		for (int i = 0; i < game.numWalls; i++)
-		{
-			SWall wall;
-			InitWall(wall, game);
-			game.wallsVec.emplace_back(wall);
-		}
+		SWall wall;
+		InitWall(wall, game);
+		game.wallsVec.emplace_back(wall);
 		
 		// Init Apples
 		if (!game.applesVec.empty())
@@ -60,12 +56,9 @@ namespace SnakeGame
 			game.applesVec.clear();
 		}
 		
-		for (int i = 0; i < game.numApples; i++)
-		{
-			SApple apple;
-			InitApple(apple, game);
-			game.applesVec.emplace_back(apple);
-		}
+		SApple apple;
+		InitApple(apple, game);
+		game.applesVec.emplace_back(apple);
 		
 		game.backgroundGameZone.setTexture(game.grassTexture);
 		SetSpriteSize(game.backgroundGameZone, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -266,11 +259,11 @@ namespace SnakeGame
 		HandleInput(game.snake);
 		MoveSnake(game, currentTime);
 
-		if (!(game.gameMode & MASK_INFINIT_FOODS) && game.numEatenApples == game.numApples)
-		{
-			SwitchGameState(game, GameState::Winner);
-			PlaySound(game.uiState, game.winnerBuffer);
-		}
+		// if (!(game.gameMode & MASK_INFINIT_FOODS) && game.numEatenApples == game.numApples)
+		// {
+			// SwitchGameState(game, GameState::Winner);
+			// PlaySound(game.uiState, game.winnerBuffer);
+		// }
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 		{
@@ -449,7 +442,7 @@ namespace SnakeGame
 				switch (game.field[i][j])
 				{
 				case FIELD_CELL_TYPE_NONE:
-					game.noneSprite.setPosition(i * CELL_SIZE, j * CELL_SIZE);
+					game.noneSprite.setPosition(i * CELL_SIZE, j * CELL_SIZE + SCOREBAR_HEIGHT);
 					window.draw(game.noneSprite);
 					break;
 				}

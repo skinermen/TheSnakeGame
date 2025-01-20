@@ -29,7 +29,7 @@ namespace SnakeGame
 				switch (game.field[i][j])
 				{
 				case FIELD_CELL_TYPE_APPLE:
-					apple.sprite.setPosition(i * CELL_SIZE, j * CELL_SIZE);
+					apple.sprite.setPosition(i * CELL_SIZE, j * CELL_SIZE + SCOREBAR_HEIGHT);
 					window.draw(apple.sprite);
 					break;
 				}

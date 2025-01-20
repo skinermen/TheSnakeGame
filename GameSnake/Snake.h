@@ -19,7 +19,7 @@ namespace SnakeGame
 	{
 		Position2D position;
 		float lastUpdateTime = 0.0f; // Время последнего обновления
-		float movementInterval = INITIAL_SPEED; // Интервал между перемещениями (в секундах)
+		float movementInterval = INITIAL_SPEED_HARD; // Интервал между перемещениями (в секундах)
 		SnakeDirection direction = SnakeDirection::StartPosition;
 		sf::Sprite spriteHead;
 		sf::Sprite spriteBody;

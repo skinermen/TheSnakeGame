@@ -19,7 +19,6 @@ namespace SnakeGame
 		snake.direction = SnakeDirection::Right; // Начальное направление
 		snake.position = { FIELD_SIZE_X / 2, FIELD_SIZE_Y / 2 }; // Центр поля
 		snake.lastUpdateTime = 0.f;
-		snake.movementInterval = 0.2f; // Интервал движения в секундах
 	}
 
 	void AddSnake(SGame& game)
@@ -40,7 +39,7 @@ namespace SnakeGame
 			{
 				if (game.field[i][j] == snake.snakeLength) // Условие для головы
 				{
-					snake.spriteHead.setPosition(i * CELL_SIZE, j * CELL_SIZE);
+					snake.spriteHead.setPosition(i * CELL_SIZE, j * CELL_SIZE + SCOREBAR_HEIGHT);
 					window.draw(snake.spriteHead);
 				}
 			}
@@ -53,7 +52,7 @@ namespace SnakeGame
 			{
 				if (game.field[i][j] > FIELD_CELL_TYPE_NONE && game.field[i][j] < snake.snakeLength)
 				{
-					snake.spriteBody.setPosition(i * CELL_SIZE, j * CELL_SIZE);
+					snake.spriteBody.setPosition(i * CELL_SIZE, j * CELL_SIZE + SCOREBAR_HEIGHT);
 					window.draw(snake.spriteBody);
 				}
 			}
@@ -177,7 +176,7 @@ namespace SnakeGame
 	            return;
 	        }
 
-	    	// Проверяем столкновение c собой
+	    	// Проверяем столкновение cо стеной
 	    	if (game.field[player.position.x][player.position.y] == FIELD_CELL_TYPE_WALL)
 	    	{
 	    		game.gameStateStack.push_back(GameState::GameOver);
@@ -190,6 +189,8 @@ namespace SnakeGame
 	        if (game.field[player.position.x][player.position.y] == FIELD_CELL_TYPE_APPLE)
 	        {
 	            player.snakeLength++;
+	        	game.numEatenApples += 1;
+	        	game.numScores += SCORES_PER_APPLE_HARD;
 	            GrowSnake(game);
 	            AddApple(game);
 	            PlaySound(game.uiState, game.eatAppleBuffer);

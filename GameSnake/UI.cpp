@@ -103,8 +103,8 @@ namespace SnakeGame
 
 	void UpdateUI(UIState& uiState, const struct SGame& game)
 	{
-		uiState.scoreText.setString("Mushrooms eaten: " + std::to_string(game.numEatenApples));
-		uiState.scoreTextGameOver.setString("Scores: " + std::to_string(game.numEatenApples));
+		uiState.scoreText.setString("Scores: " + std::to_string(game.numScores));
+		uiState.scoreTextGameOver.setString("Scores: " + std::to_string(game.numScores));
 		uiState.scoreTextGameOver.setOrigin(GetTextOrigin(uiState.scoreTextGameOver, { 0.5f, 0.5f }));
 
 		uiState.mainMenuGameModeUnlimitedFoods.setString("Unlimited mushrooms: " + GetButtonText(game, MASK_INFINIT_FOODS));
@@ -252,7 +252,7 @@ namespace SnakeGame
 			game.backgroundLast = game.backgroundScoreboard;
 
 			// Score table
-			InitScoreboard(uiState, game.numEatenApples, game.font, uiState.vectorScoreTable);
+			InitScoreboard(uiState, game.numScores, game.font, uiState.vectorScoreTable);
 			
 			// Draw
 			uiState.scoreboardTextTitle.setPosition(window.getSize().x / 2.f, 40.f);

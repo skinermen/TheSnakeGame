@@ -35,7 +35,7 @@ namespace SnakeGame
 				if (game.field[i][j] == FIELD_CELL_TYPE_WALL)
 				{
 					// Устанавливаем позицию спрайта стены
-					wall.sprite.setPosition(i * CELL_SIZE, j * CELL_SIZE);
+					wall.sprite.setPosition(i * CELL_SIZE, j * CELL_SIZE + SCOREBAR_HEIGHT);
 					window.draw(wall.sprite);  // Рисуем стену
 				}
 			}

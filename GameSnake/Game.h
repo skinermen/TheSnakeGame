@@ -34,9 +34,8 @@ namespace SnakeGame
 		bool onKeyEsc = false;
 		
 		// Global game data
-		int numApples = 0;
-		int numWalls = 0;
 		int numEatenApples = 0;
+		int numScores = 0;
 		float timeSinceGameOver = 0.f;
 		sf::Sprite backgroundGameZone;
 		sf::Sprite backgroundMenu;
