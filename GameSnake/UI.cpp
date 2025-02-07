@@ -31,13 +31,9 @@ namespace SnakeGame
 		uiState.gameOverTextInstructions.setOrigin(GetTextOrigin(uiState.gameOverTextInstructions, { 0.5f, 0.5f }));
 
 		// Main Menu Text
-		InitTextUI(uiState.mainMenuTextStartGame, font, 72, 1, sf::Color::Green, "Press the SPACE\nto start the game");
+		InitTextUI(uiState.mainMenuTextStartGame, font, 72, 1, sf::Color::White, "SNAKE");
 		uiState.mainMenuTextStartGame.setOrigin(GetTextOrigin(uiState.mainMenuTextStartGame, { 0.5f, 0.5f }));
-		InitTextUI(uiState.mainMenuTextScoreboard, font, 24, 1, sf::Color::White, "Press Tab to open the scoreboard");
-		uiState.mainMenuTextScoreboard.setOrigin(GetTextOrigin(uiState.mainMenuTextScoreboard, { 0.5f, 0.5f }));
-		InitTextUI(uiState.mainMenuTextInsructions, font, 24, 3, sf::Color::Green, "Use the keys 1, 2 to select the game mode");
-		InitTextUI(uiState.mainMenuGameModeUnlimitedFoods, font, 24, 1, sf::Color::White);
-		InitTextUI(uiState.mainMenuGameModeAcceleration, font, 24, 1, sf::Color::White);
+		InitMainMenu(uiState, font, uiState.textItems);
 
 		// Quit Menu Text
 		InitTextUI(uiState.quitMenuText, font, 48, 1, sf::Color::White, "Pause menu");
@@ -101,14 +97,49 @@ namespace SnakeGame
 		}
 	}
 
+	void InitMainMenu(UIState& uiState, const sf::Font& font, std::vector<sf::Text> textItems)
+	{
+		for (int i = 0; i < uiState.mainMenuItems.size(); i++)
+		{
+			sf::Text menuItem;
+			menuItem.setFont(font);
+			InitTextUI(menuItem, font, 50, 1, (i == 0 ? sf::Color::Green : sf::Color::White), uiState.mainMenuItems[i]);
+			// menuItem.setOrigin(GetTextOrigin(uiState.mainMenuTextStartGame, { 0.5f, 0.5f }));
+			uiState.textItems.push_back(menuItem);
+		}
+		uiState.selectedItemIndex = 0; // Начальный выбор
+	}
+
+	void moveUp(UIState& ui_state)
+	{
+		if (ui_state.selectedItemIndex > 0)
+		{
+			ui_state.textItems[ui_state.selectedItemIndex].setFillColor(sf::Color::White);
+			ui_state.selectedItemIndex--;
+			ui_state.textItems[ui_state.selectedItemIndex].setFillColor(sf::Color::Green);
+		}
+	}
+
+	void moveDown(UIState& ui_state)
+	{
+		if (ui_state.selectedItemIndex < ui_state.textItems.size() - 1)
+		{
+			ui_state.textItems[ui_state.selectedItemIndex].setFillColor(sf::Color::White);
+			ui_state.selectedItemIndex++;
+			ui_state.textItems[ui_state.selectedItemIndex].setFillColor(sf::Color::Green);
+		}
+	}
+
+	int getSelectedItemIndex(UIState& ui_state)
+	{
+		return ui_state.selectedItemIndex;
+	}
+
 	void UpdateUI(UIState& uiState, const struct SGame& game)
 	{
 		uiState.scoreText.setString("Scores: " + std::to_string(game.numScores));
 		uiState.scoreTextGameOver.setString("Scores: " + std::to_string(game.numScores));
 		uiState.scoreTextGameOver.setOrigin(GetTextOrigin(uiState.scoreTextGameOver, { 0.5f, 0.5f }));
-
-		uiState.mainMenuGameModeUnlimitedFoods.setString("Unlimited mushrooms: " + GetButtonText(game, MASK_INFINIT_FOODS));
-		uiState.mainMenuGameModeAcceleration.setString("Acceleration of movement: " + GetButtonText(game, MASK_WITH_ACCELERATION));
 
 		uiState.isGameOverTextVisible = GetCurrentGameState(game) == GameState::GameOver;
 		sf::Color gameOverTextColor = (int)game.timeSinceGameOver % 2 ? sf::Color::Red : sf::Color::Yellow;
@@ -193,26 +224,22 @@ namespace SnakeGame
 
 		if (uiState.isMainMenuTextVisible)
 		{
-			if (GetCurrentGameState(game) == GameState::MainMenu)
-			{
-				game.backgroundLast = game.backgroundMenu;
-				window.draw(game.backgroundMenu);
-			}
+
+			game.backgroundLast = game.backgroundMenu;
+			window.draw(game.backgroundMenu);
+			
 			
 			uiState.mainMenuTextStartGame.setPosition(window.getSize().x / 2.f, 100.f);
 			window.draw(uiState.mainMenuTextStartGame);
+			float verticalIndentation = 0.f;
 			
-			uiState.mainMenuTextScoreboard.setPosition(window.getSize().x / 2.f, 200.f);
-			window.draw(uiState.mainMenuTextScoreboard);
-			
-			uiState.mainMenuTextInsructions.setPosition(10.f, window.getSize().y - 100.f);
-			window.draw(uiState.mainMenuTextInsructions);
-
-			uiState.mainMenuGameModeUnlimitedFoods.setPosition(10.f, window.getSize().y - 75.f);
-			window.draw(uiState.mainMenuGameModeUnlimitedFoods);
-
-			uiState.mainMenuGameModeAcceleration.setPosition(10.f, window.getSize().y - 50.f);
-			window.draw(uiState.mainMenuGameModeAcceleration);
+			for (int i = 0; i < uiState.mainMenuItems.size(); ++i)
+			{
+				sf::FloatRect bounds = uiState.textItems[i].getLocalBounds();
+				uiState.textItems[i].setPosition((SCREEN_WIDTH - bounds.width) / 2, SCREEN_HEIGHT / 4.f + verticalIndentation);
+				window.draw(uiState.textItems[i]);
+				verticalIndentation += 60.f;
+			}
 		}
 
 		if (uiState.isGameOverTextVisible)

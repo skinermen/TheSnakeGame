@@ -28,10 +28,9 @@ namespace SnakeGame
 		bool isPlayMusic = false;
 
 		// Key state
-		bool onKeyHold1 = false;
-		bool onKeyHold2 = false;
-		bool onKeyHoldTab = false;
-		bool onKeyEsc = false;
+		bool onKeyHold = false;
+		// bool onKeyHoldTab = false;
+		// bool onKeyEsc = false;
 		
 		// Global game data
 		int numEatenApples = 0;
@@ -80,6 +79,7 @@ namespace SnakeGame
 	void InitField (SGame& game);
 	
 	void UpdateMainMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game);
+	void HandleMenuSelection(int selectedIndex, SGame& game, UIState& uiState, sf::RenderWindow& window);
 	void UpdateQuitMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game);
 	void UpdatePlayingState(const sf::Event& event, SGame& game, float currentTime);
 	void UpdateGame(SGame& game, float currentTime, sf::RenderWindow& window, sf::Event event);

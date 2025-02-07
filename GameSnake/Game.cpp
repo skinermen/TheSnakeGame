@@ -132,62 +132,66 @@ namespace SnakeGame
 	
 	void UpdateMainMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game)
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 		{
+			if (!game.onKeyHold)
+			{
+				moveUp(game.uiState);
+			}
+			game.onKeyHold = true;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+		{
+			if (!game.onKeyHold)
+			{
+				moveDown(game.uiState);
+			}
+			game.onKeyHold = true;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+		{
+			int selectedIndex = getSelectedItemIndex(game.uiState);
+			HandleMenuSelection(selectedIndex, game, game.uiState, window);  // Функция для обработки выбора пункта меню
+		}
+		else if (event.type == sf::Event::KeyReleased)
+		{
+			game.onKeyHold = false;
+		}
+		// if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
+		// {
+		// 	if (!game.onKeyHold1)
+		// 	{
+		// 		ToggleGameMode(game, MASK_INFINIT_FOODS);
+		// 		GetButtonText(game, MASK_INFINIT_FOODS);
+		// 	}
+		// 	game.onKeyHold1 = true;
+		// }		
+	}
+
+	void HandleMenuSelection(int selectedIndex, SGame& game, UIState& uiState, sf::RenderWindow& window)
+	{
+		switch (selectedIndex)
+		{
+		case 0:  // "Начать игру"
 			SwitchGameState(game, GameState::Playing);
 			InitField(game);
 			InitGameState(game);
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
-		{
+			break;
+		case 1:  // "Уровень сложности"
+			// Здесь можно открыть подменю выбора сложности
+				break;
+		case 2:  // "Таблица рекордов"
 			SwitchGameState(game, GameState::Scoreboard);
+			break;
+		case 3:  // "Настройки"
+			// Здесь можно открыть меню настроек
+				break;
+		case 4:  // "Выход"
+			window.close();
+			break;
+		default:
+			break;
 		}
-		
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
-		{
-			if (!game.onKeyHold1)
-			{
-				ToggleGameMode(game, MASK_INFINIT_FOODS);
-				GetButtonText(game, MASK_INFINIT_FOODS);
-			}
-			game.onKeyHold1 = true;
-		}
-
-		else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Num1)
-		{
-			game.onKeyHold1 = false;
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
-		{
-			if (!game.onKeyHold2)
-			{
-				ToggleGameMode(game, MASK_WITH_ACCELERATION);
-				GetButtonText(game, MASK_WITH_ACCELERATION);
-			}
-			game.onKeyHold2 = true;
-		}
-
-		else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Num2)
-		{
-			game.onKeyHold2 = false;
-		}
-		
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-		{
-			if (!game.onKeyEsc)
-			{
-				window.close();
-			}
-			game.onKeyEsc = true;
-		}
-
-		else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
-		{
-			game.onKeyEsc = false;
-		}
-		
 	}
 
 	void UpdateQuitMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game)
@@ -195,39 +199,39 @@ namespace SnakeGame
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::M))
 		{
 			SwitchGameState(game,GameState::MainMenu);
-			game.onKeyEsc = false;
+			game.onKeyHold = false;
 		}
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 		{
 			SwitchGameState(game, GameState::Playing);
-			game.onKeyEsc = false;
+			game.onKeyHold = false;
 			InitField(game);
 			InitGameState(game);
 		}
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
 		{
-			game.onKeyEsc = false;
+			game.onKeyHold = false;
 			window.close();
 		}
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 		{
-			if (!game.onKeyEsc)
+			if (!game.onKeyHold)
 			{
 				game.gameStateStack.pop_back();
-				game.onKeyEsc = false;
+				game.onKeyHold = false;
 				if (game.isPlayMusic)
 				{
 					game.musicMainTheme.play();
 				}
 			}
-			game.onKeyEsc = true;
+			game.onKeyHold = true;
 		}
-		else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
+		else if (event.type == sf::Event::KeyReleased)
 		{
-			game.onKeyEsc = false;
+			game.onKeyHold = false;
 		}
 	}
 
@@ -259,25 +263,19 @@ namespace SnakeGame
 		HandleInput(game.snake);
 		MoveSnake(game, currentTime);
 
-		// if (!(game.gameMode & MASK_INFINIT_FOODS) && game.numEatenApples == game.numApples)
-		// {
-			// SwitchGameState(game, GameState::Winner);
-			// PlaySound(game.uiState, game.winnerBuffer);
-		// }
-
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 		{
-			if (!game.onKeyEsc)
+			if (!game.onKeyHold)
 			{
 				game.gameStateStack.push_back(GameState::QuitMenu);
 				game.musicMainTheme.pause();
-				game.onKeyEsc = true;
+				game.onKeyHold = true;
 			}
-			game.onKeyEsc = true;
+			game.onKeyHold = true;
 		}
-		else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
+		else if (event.type == sf::Event::KeyReleased)
 		{
-			game.onKeyEsc = false;
+			game.onKeyHold = false;
 		}
 	}
 
@@ -285,16 +283,16 @@ namespace SnakeGame
 	{
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 		{
-			if (!game.onKeyEsc)
+			if (!game.onKeyHold)
 			{
 				SwitchGameState(game,GameState::MainMenu);
 			}
-			game.onKeyEsc = true;
+			game.onKeyHold = true;
 		}
 
-		else if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Escape)
+		else if (event.type == sf::Event::KeyReleased)
 		{
-			game.onKeyEsc = false;
+			game.onKeyHold = false;
 		}
 	}
 
