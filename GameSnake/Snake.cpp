@@ -7,8 +7,8 @@ namespace SnakeGame
 	void InitSnake(SSnake& snake, SGame& game)
 	{
 		// Init snake sprite
-		snake.spriteHead.setTexture(game.snakeTextureHead);
-		snake.spriteBody.setTexture(game.snakeTextureBody);
+		snake.spriteHead.setTexture(game.uiState.snakeTextureHead);
+		snake.spriteBody.setTexture(game.uiState.snakeTextureBody);
 		SetSpriteSize(snake.spriteHead, SNAKE_SEGMENT_SIZE, SNAKE_SEGMENT_SIZE);
 		SetSpriteSize(snake.spriteBody, SNAKE_SEGMENT_SIZE, SNAKE_SEGMENT_SIZE);
 		snake.spriteHead.setScale(GetSpriteScale(snake.spriteHead, SNAKE_SEGMENT_SIZE, SNAKE_SEGMENT_SIZE));
@@ -172,7 +172,7 @@ namespace SnakeGame
 	        {
 	            game.gameStateStack.push_back(GameState::GameOver);
 	        	game.timeSinceGameOver = 0.f;
-	        	PlaySound(game.uiState, game.deathBuffer);
+	        	PlaySound(game.uiState, game.uiState.deathBuffer);
 	            return;
 	        }
 
@@ -181,7 +181,7 @@ namespace SnakeGame
 	    	{
 	    		game.gameStateStack.push_back(GameState::GameOver);
 	    		game.timeSinceGameOver = 0.f;
-	    		PlaySound(game.uiState, game.deathBuffer);
+	    		PlaySound(game.uiState, game.uiState.deathBuffer);
 	    		return;
 	    	}
 
@@ -190,10 +190,10 @@ namespace SnakeGame
 	        {
 	            player.snakeLength++;
 	        	game.numEatenApples += 1;
-	        	game.numScores += SCORES_PER_APPLE_HARD;
+	        	game.uiState.menuState.numScores += SCORES_PER_APPLE_HARD;
 	            GrowSnake(game);
 	            AddApple(game);
-	            PlaySound(game.uiState, game.eatAppleBuffer);
+	            PlaySound(game.uiState, game.uiState.eatAppleBuffer);
 	        }
 
 	        // Обновляем игровое поле

@@ -164,6 +164,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameMain.cpp" />
     <ClCompile Include="Math.cpp" />
+    <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Snake.cpp" />
     <ClCompile Include="Wall.cpp" />
     <ClCompile Include="UI.cpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Math.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="Snake.h" />
     <ClInclude Include="Wall.h" />
     <ClInclude Include="UI.h" />

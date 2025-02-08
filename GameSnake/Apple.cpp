@@ -6,7 +6,7 @@ namespace SnakeGame
 	void InitApple(SApple& apple, const SGame& game)
 	{
 		// Init apple sprite
-		apple.sprite.setTexture(game.appleTexture);
+		apple.sprite.setTexture(game.uiState.appleTexture);
 		SetSpriteSize(apple.sprite, FOOD_SIZE, FOOD_SIZE);
 	}
 

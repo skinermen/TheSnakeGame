@@ -6,35 +6,18 @@ namespace SnakeGame
 {
 	void InitGame(SGame& game, sf::RenderWindow& window)
 	{
-		assert(game.snakeTextureHead.loadFromFile(RESOURCES_PATH + "\\snake.png"));
-		assert(game.snakeTextureBody.loadFromFile(RESOURCES_PATH + "\\Snake_Body.png"));
-		assert(game.appleTexture.loadFromFile(RESOURCES_PATH + "\\Apple.png"));
-		assert(game.wallTexture.loadFromFile(RESOURCES_PATH + "\\wall.png"));
-		assert(game.noneTexture.loadFromFile(RESOURCES_PATH + "\\none.png"));
-		// assert(game.grassTexture.loadFromFile(RESOURCES_PATH + "\\Grass.png"));
-		assert(game.scoreboardTexture.loadFromFile(RESOURCES_PATH + "\\Scoreboard.png"));
-		assert(game.menuTexture.loadFromFile(RESOURCES_PATH + "\\Menu.png"));
-		assert(game.icon.loadFromFile(RESOURCES_PATH + "\\Icon.png"));
-		assert(game.font.loadFromFile(RESOURCES_PATH + "\\Fonts/Roboto-Regular.ttf"));
-		assert(game.eatAppleBuffer.loadFromFile(RESOURCES_PATH + "\\MushroomEat.wav"));
-		assert(game.deathBuffer.loadFromFile(RESOURCES_PATH + "\\Death.wav"));
-		assert(game.winnerBuffer.loadFromFile(RESOURCES_PATH + "\\Winner.wav"));
-		assert(game.musicMainTheme.openFromFile(RESOURCES_PATH + "\\FrenchMainMusic.wav"));
-
-		game.noneSprite.setTexture(game.noneTexture);
-		
-		window.setIcon(32, 32, game.icon.getPixelsPtr());
+		InitUI(game.uiState, game.uiState.menuState.font);
 		SwitchGameState(game, GameState::MainMenu);
 		InitGameState(game);
-		InitUI(game.uiState, game.font);
 		InitField(game);
+		window.setIcon(32, 32, game.uiState.icon.getPixelsPtr());
 	}
 
 	void InitGameState(SGame& game)
 	{
 		// Set default values
 		game.numEatenApples = 0;
-		game.numScores = 0;
+		game.uiState.menuState.numScores = 0;
 		game.timeSinceGameOver = 0.f;
 
 		// Init Player
@@ -60,19 +43,19 @@ namespace SnakeGame
 		InitApple(apple, game);
 		game.applesVec.emplace_back(apple);
 		
-		game.backgroundGameZone.setTexture(game.grassTexture);
-		SetSpriteSize(game.backgroundGameZone, SCREEN_WIDTH, SCREEN_HEIGHT);
-		game.backgroundMenu.setTexture(game.menuTexture);
-		SetSpriteSize(game.backgroundMenu, SCREEN_WIDTH, SCREEN_HEIGHT);
-		game.backgroundScoreboard.setTexture(game.scoreboardTexture);
-		SetSpriteSize(game.backgroundScoreboard, SCREEN_WIDTH, SCREEN_HEIGHT);
+		// game.uiState.backgroundGameZone.setTexture(game.uiState.grassTexture);
+		// SetSpriteSize(game.uiState.backgroundGameZone, SCREEN_WIDTH, SCREEN_HEIGHT);
+		game.uiState.menuState.backgroundMenu.setTexture(game.uiState.menuState.mainMenuTexture);
+		SetSpriteSize(game.uiState.menuState.backgroundMenu, SCREEN_WIDTH, SCREEN_HEIGHT);
+		game.uiState.menuState.backgroundScoreboard.setTexture(game.uiState.menuState.scoreboardTexture);
+		SetSpriteSize(game.uiState.menuState.backgroundScoreboard, SCREEN_WIDTH, SCREEN_HEIGHT);
 		
 		if (GetCurrentGameState(game) == GameState::Playing)
 		{
-			game.musicMainTheme.setVolume(20);
-			game.musicMainTheme.setPlayingOffset(sf::seconds(0.f));
-			game.musicMainTheme.play();
-			game.musicMainTheme.setLoop(true);
+			game.uiState.musicMainTheme.setVolume(20);
+			game.uiState.musicMainTheme.setPlayingOffset(sf::seconds(0.f));
+			game.uiState.musicMainTheme.play();
+			game.uiState.musicMainTheme.setLoop(true);
 			game.isPlayMusic = true;
 		}
 	}
@@ -93,9 +76,11 @@ namespace SnakeGame
 		AddApple(game);
 	}
 
-	void InitGameOverState(SGame& game)
+	void InitStartNewGame(SGame& game)
 	{
-		game.timeSinceGameOver = 0.f;
+		SwitchGameState(game, GameState::Playing);
+		InitGameState(game);
+		InitField(game);
 	}
 
 	int GetRandomEmptyCell(const SGame& game)
@@ -130,13 +115,13 @@ namespace SnakeGame
 		return -1;
 	}
 	
-	void UpdateMainMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game)
+	void UpdateMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game)
 	{
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 		{
 			if (!game.onKeyHold)
 			{
-				moveUp(game.uiState);
+				moveUp(game.uiState.menuState);
 			}
 			game.onKeyHold = true;
 		}
@@ -144,14 +129,25 @@ namespace SnakeGame
 		{
 			if (!game.onKeyHold)
 			{
-				moveDown(game.uiState);
+				moveDown(game.uiState.menuState);
 			}
 			game.onKeyHold = true;
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
 		{
-			int selectedIndex = getSelectedItemIndex(game.uiState);
-			HandleMenuSelection(selectedIndex, game, game.uiState, window);  // Функция для обработки выбора пункта меню
+			int selectedIndex = getSelectedItemIndex(game.uiState.menuState);
+			if (GetCurrentGameState(game) == GameState::MainMenu)
+			{
+				HandleMainMenuSelection(selectedIndex, game, window);
+			}
+			if (GetCurrentGameState(game) == GameState::Difficulty)
+			{
+				////
+			}
+			if (GetCurrentGameState(game) == GameState::Options)
+			{
+				////
+			}
 		}
 		else if (event.type == sf::Event::KeyReleased)
 		{
@@ -168,25 +164,23 @@ namespace SnakeGame
 		// }		
 	}
 
-	void HandleMenuSelection(int selectedIndex, SGame& game, UIState& uiState, sf::RenderWindow& window)
+	void HandleMainMenuSelection(int selectedIndex, SGame& game, sf::RenderWindow& window)
 	{
 		switch (selectedIndex)
 		{
-		case 0:  // "Начать игру"
-			SwitchGameState(game, GameState::Playing);
-			InitField(game);
-			InitGameState(game);
+		case 0:  // Start Game
+			InitStartNewGame(game);
 			break;
-		case 1:  // "Уровень сложности"
-			// Здесь можно открыть подменю выбора сложности
+		case 1:  // Difficulty
+			///
 				break;
-		case 2:  // "Таблица рекордов"
+		case 2:  // Scoreboard
 			SwitchGameState(game, GameState::Scoreboard);
 			break;
-		case 3:  // "Настройки"
-			// Здесь можно открыть меню настроек
+		case 3:  // Options
+			///
 				break;
-		case 4:  // "Выход"
+		case 4: // Exit
 			window.close();
 			break;
 		default:
@@ -204,10 +198,8 @@ namespace SnakeGame
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 		{
-			SwitchGameState(game, GameState::Playing);
+			InitStartNewGame(game);
 			game.onKeyHold = false;
-			InitField(game);
-			InitGameState(game);
 		}
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
@@ -224,7 +216,7 @@ namespace SnakeGame
 				game.onKeyHold = false;
 				if (game.isPlayMusic)
 				{
-					game.musicMainTheme.play();
+					game.uiState.musicMainTheme.play();
 				}
 			}
 			game.onKeyHold = true;
@@ -237,14 +229,12 @@ namespace SnakeGame
 
 	void UpdateGameOverState(SGame& game, sf::RenderWindow& window, float deltaTime)
 	{
-		game.timeSinceGameOver += deltaTime;
-		game.musicMainTheme.stop();
+		game.timeSinceGameOver += deltaTime; // Надо выяснить где считается deltaTime
+		game.uiState.musicMainTheme.stop();
 			
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 		{
-			SwitchGameState(game, GameState::Playing);
-			InitField(game);
-			InitGameState(game);
+			InitStartNewGame(game);
 		}
 			
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::M))
@@ -268,7 +258,7 @@ namespace SnakeGame
 			if (!game.onKeyHold)
 			{
 				game.gameStateStack.push_back(GameState::QuitMenu);
-				game.musicMainTheme.pause();
+				game.uiState.musicMainTheme.pause();
 				game.onKeyHold = true;
 			}
 			game.onKeyHold = true;
@@ -312,13 +302,19 @@ namespace SnakeGame
 			UpdateGameOverState(game, window, currentTime);
 			break;
 		case SnakeGame::GameState::MainMenu:
-			UpdateMainMenuState(event, window, game);
+			UpdateMenuState(event, window, game);
 			break;
 		case SnakeGame::GameState::QuitMenu:
 			UpdateQuitMenuState(event, window, game);
 			break;
 		case SnakeGame::GameState::Scoreboard:
 			UpdateScoreboardState(game, event);
+			break;
+		case SnakeGame::GameState::Difficulty:
+			UpdateMenuState(event, window, game);
+			break;
+		case SnakeGame::GameState::Options:
+			UpdateMenuState(event, window, game);
 			break;
 		default:
 			break;
@@ -334,8 +330,7 @@ namespace SnakeGame
 		{
 			oldState = game.gameStateStack.back();
 		}
-
-		SwitchGameStateInternal(game, oldState, state);
+		
 		game.gameStateStack.push_back(state);
 	}
 
@@ -353,8 +348,6 @@ namespace SnakeGame
 		{
 			state = game.gameStateStack.back();
 		}
-
-		SwitchGameStateInternal(game, oldState, state);
 	}
 
 	void SwitchGameState(SGame& game, GameState newState)
@@ -364,30 +357,10 @@ namespace SnakeGame
 			GameState oldState = game.gameStateStack.back();
 			game.gameStateStack.pop_back();
 			game.gameStateStack.push_back(newState);
-			SwitchGameStateInternal(game, oldState, newState);
 		}
 		else
 		{
 			PushGameState(game, newState);
-		}
-	}
-
-	void SwitchGameStateInternal(SGame& game, GameState oldState, GameState newState)
-	{
-		switch (newState)
-		{
-		case SnakeGame::GameState::Playing:
-			{
-				InitGameState(game);
-				break;
-			}
-		case SnakeGame::GameState::GameOver:
-			{
-				InitGameOverState(game);
-				break;
-			}
-		default:
-			break;
 		}
 	}
 
@@ -440,8 +413,8 @@ namespace SnakeGame
 				switch (game.field[i][j])
 				{
 				case FIELD_CELL_TYPE_NONE:
-					game.noneSprite.setPosition(i * CELL_SIZE, j * CELL_SIZE + SCOREBAR_HEIGHT);
-					window.draw(game.noneSprite);
+					game.uiState.noneSprite.setPosition(i * CELL_SIZE, j * CELL_SIZE + SCOREBAR_HEIGHT);
+					window.draw(game.uiState.noneSprite);
 					break;
 				}
 			}
@@ -464,7 +437,7 @@ namespace SnakeGame
 
 		if (GetCurrentGameState(game) == GameState::Scoreboard)
 		{
-			window.draw(game.backgroundLast);
+			window.draw(game.uiState.menuState.backgroundLast);
 		}
 
 		// Draw UI

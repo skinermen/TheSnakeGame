@@ -6,7 +6,7 @@ namespace SnakeGame
 	void InitWall(SWall& wall, const SGame& game)
 	{
 		// Инициализация спрайта стены
-		wall.sprite.setTexture(game.wallTexture);
+		wall.sprite.setTexture(game.uiState.wallTexture);
 		SetSpriteSize(wall.sprite, WALL_SIZE, WALL_SIZE);  // Устанавливаем размер спрайта стены
 	}
 
