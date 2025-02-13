@@ -1,6 +1,5 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
 #include "Snake.h"
 #include "Apple.h"
 #include "Wall.h"
@@ -15,9 +14,8 @@ namespace SnakeGame
 		None = 0,
 		MainMenu,
 		Playing,
-		Winner,
 		GameOver,
-		QuitMenu,
+		PauseMenu,
 		Scoreboard,
 		Difficulty,
 		Options,
@@ -27,7 +25,6 @@ namespace SnakeGame
 	{
 		// Game state
 		bool isScreenLeaderboard = false;
-		bool isPlayMusic = false;
 
 		// Key state
 		bool onKeyHold = false;
@@ -56,24 +53,26 @@ namespace SnakeGame
 	void InitField (SGame& game);
 	void InitStartNewGame(SGame& game);
 	
-	void UpdateMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game);
-	void UpdateQuitMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game);
+	void UpdateGame(SGame& game, float currentTime, sf::RenderWindow& window, const sf::Event& event);
 	void UpdatePlayingState(const sf::Event& event, SGame& game, float currentTime);
-	void UpdateGame(SGame& game, float currentTime, sf::RenderWindow& window, sf::Event event);
-	void UpdateGameOverState(SGame& game, sf::RenderWindow& window, float deltaTime);
-	void UpdateScoreboardState(SGame& game, sf::Event& event);
+	void UpdateMenuState(SGame& game, const sf::Event& event, sf::RenderWindow& window, std::vector<sf::Text>& menuItems);
+	void UpdateScoreboardState(SGame& game, const sf::Event& event);
 	
-	void HandleMainMenuSelection(int selectedIndex, SGame& game, sf::RenderWindow& window);
+	void HandleMainMenuSelection(unsigned int selectedIndex, SGame& game, sf::RenderWindow& window);
+	void HandlePauseMenuSelection(unsigned int selectedIndex, SGame& game);
+	void HandleGameOverMenuSelection(unsigned int selectedIndex, SGame& game);
 
+	void DrawGame(SGame& game, sf::RenderWindow& window);
+	
 	void PushGameState(SGame& game, GameState state);
 	void PopGameState(SGame& game);
 	void SwitchGameState(SGame& game, GameState newState);
+	
 	GameState GetCurrentGameState(const SGame& game);
 	GameState GetPreviousGameState(const SGame& game);
-	
 	int GetRandomEmptyCell(const SGame& game);
-	void DrawGame(SGame& game, sf::RenderWindow& window);
-	void ToggleGameMode(SGame& game, const int modeSelection);
-	std::string GetButtonText(const SGame& game, const int modeSelection);
+	std::string GetButtonText(const SGame& game, int modeSelection);
+
+	void ToggleGameMode(SGame& game, int modeSelection);
 }
 

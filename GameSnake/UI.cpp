@@ -13,6 +13,16 @@ namespace SnakeGame
 		text.setStyle(style);
 		text.setFillColor(color);
 		text.setString(name);
+		text.setOrigin(GetTextOrigin(text));
+	}
+
+	void InitRectangleUI(sf::RectangleShape& rectangle, float sizeX, float sizeY, sf::Color fillColor, sf::Color outlineColor, float outlineThickness)
+	{
+		rectangle.setSize(sf::Vector2f(sizeX, sizeY));
+		rectangle.setOrigin(rectangle.getSize().x / 2.f, rectangle.getSize().y / 2.f);
+		rectangle.setFillColor(fillColor);
+		rectangle.setOutlineColor(outlineColor);
+		rectangle.setOutlineThickness(outlineThickness);
 	}
 
 	void InitUIResources(UIState& uiState)
@@ -39,108 +49,93 @@ namespace SnakeGame
 		InitPauseTexture(uiState.menuState);
 		uiState.noneSprite.setTexture(uiState.noneTexture);
 		
-		// Score Text
-		InitTextUI(uiState.gameScoreText, font, 24, 0, sf::Color::White);
-
-		// Input Text
-		InitTextUI(uiState.inputText, font, 24, 0, sf::Color::White, "Use WASD to move, Space to restart, ESC to exit");
-		uiState.inputText.setOrigin(GetTextOrigin(uiState.inputText, { 1.f, 0.f }));
-
-		// Game over Text
-		InitGameOverMenu(uiState.menuState);
+		// Playing Resources
+		InitRectangleUI(uiState.playingRectangle, SCREEN_WIDTH - 20.f, SCREEN_HEIGHT - 20.f,
+			sf::Color::Transparent, sf::Color::White, 10.f);
+		
+		InitTextUI(uiState.playingScoreText, font, 24, 0, sf::Color::White);
+		
+		InitTextUI(uiState.playingInputText, font, 24, 0, sf::Color::White, "Use WASD to move, Space to restart, ESC to exit");
 
 		// Main Menu Text
-		InitMainMenu(uiState.menuState, font, uiState.menuState.textItems);
+		InitMainMenu(uiState.menuState, font);
+		
+		// Game over Text
+		InitGameOverMenu(uiState.menuState, font);
 
 		// Score table
-		InitScoreboard(uiState.menuState, uiState.menuState.numScores, uiState.menuState.font, uiState.menuState.vectorScoreTable);
+		InitScoreboard(uiState.menuState, uiState.menuState.numScores, uiState.menuState.font, uiState.menuState.VScoreTableItems);
 		
 		// Pause Menu Text
-		InitPauseMenu(uiState.menuState);
-		
-		// Winner Text
-		InitWinnerMenu(uiState.menuState);
+		InitPauseMenu(uiState.menuState, font);
 	}
 
-	void UpdateUI(UIState& uiState, const struct SGame& game)
+	void UpdateUI(UIState& uiState, const SGame& game)
 	{
-		uiState.gameScoreText.setString("Scores: " + std::to_string(uiState.menuState.numScores));
+		uiState.playingScoreText.setString("Scores: " + std::to_string(uiState.menuState.numScores));
 		uiState.menuState.gameOverScoreText.setString("Scores: " + std::to_string(uiState.menuState.numScores));
 		uiState.isGameOverTextVisible = GetCurrentGameState(game) == GameState::GameOver;
-		sf::Color gameOverTextColor = (int)game.timeSinceGameOver % 2 ? sf::Color::Red : sf::Color::Yellow;
-
-		uiState.menuState.gameOverText.setFillColor(gameOverTextColor);
 
 		if (GetCurrentGameState(game) == GameState::MainMenu)
 		{
-			uiState.isGameTextVisible = true;
+			uiState.isPlayingTextVisible = true;
 			uiState.isGameOverTextVisible = false;
 			uiState.isMainMenuTextVisible = true;
 			uiState.isPauseMenuTextVisible = false;
-			uiState.isWinnerTextVisible = false;
 			uiState.isScoreboardVisible = false;
 		}
 
 		if (GetCurrentGameState(game) == GameState::Playing)
 		{
-			uiState.isGameTextVisible = true;
+			uiState.isPlayingTextVisible = true;
 			uiState.isGameOverTextVisible = false;
 			uiState.isMainMenuTextVisible = false;
 			uiState.isPauseMenuTextVisible = false;
-			uiState.isWinnerTextVisible = false;
 			uiState.isScoreboardVisible = false;
 		}
 
 		if (GetCurrentGameState(game) == GameState::GameOver)
 		{
-			uiState.isGameTextVisible = false;
+			uiState.isPlayingTextVisible = false;
 			uiState.isGameOverTextVisible = true;
 			uiState.isMainMenuTextVisible = false;
 			uiState.isPauseMenuTextVisible = false;
-			uiState.isWinnerTextVisible = false;
 			uiState.isScoreboardVisible = false;
 		}
 
 		if (GetCurrentGameState(game) == GameState::Scoreboard)
 		{
-			uiState.isGameTextVisible = false;
+			uiState.isPlayingTextVisible = false;
 			uiState.isGameOverTextVisible = false;
 			uiState.isMainMenuTextVisible = false;
 			uiState.isPauseMenuTextVisible = false;
-			uiState.isWinnerTextVisible = false;
 			uiState.isScoreboardVisible = true;
 		}
 
-		if (GetCurrentGameState(game) == GameState::Winner)
+		if (GetCurrentGameState(game) == GameState::PauseMenu)
 		{
-			uiState.isGameTextVisible = false;
-			uiState.isGameOverTextVisible = false;
-			uiState.isMainMenuTextVisible = false;
-			uiState.isPauseMenuTextVisible = false;
-			uiState.isWinnerTextVisible = true;
-			uiState.isScoreboardVisible = false;
-		}
-
-		if (GetCurrentGameState(game) == GameState::QuitMenu)
-		{
-			uiState.isGameTextVisible = false;
+			uiState.isPlayingTextVisible = false;
 			uiState.isGameOverTextVisible = false;
 			uiState.isMainMenuTextVisible = false;
 			uiState.isPauseMenuTextVisible = true;
-			uiState.isWinnerTextVisible = false;
 			uiState.isScoreboardVisible = false;
 		}
 	}
 
-	void DrawUI(UIState& uiState, SGame& game, sf::RenderWindow& window)
+	void DrawUI(UIState& uiState, sf::RenderWindow& window)
 	{
-		if (uiState.isGameTextVisible)
+		if (uiState.isPlayingTextVisible)
 		{
-			uiState.gameScoreText.setPosition(10.f, 10.f);
-			window.draw(uiState.gameScoreText);
+			uiState.playingRectangle.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f);
+			window.draw(uiState.playingRectangle);
+			
+			uiState.playingScoreText.setPosition(10.f + BORDER_SIZE, 10.f + BORDER_SIZE);
+			uiState.playingScoreText.setOrigin(0.f, 0.f);
+			window.draw(uiState.playingScoreText);
 
-			uiState.inputText.setPosition(window.getSize().x - 10.f, 10.f);
-			window.draw(uiState.inputText);
+			uiState.playingInputText.setPosition(window.getSize().x - 10.f - BORDER_SIZE, 10.f + BORDER_SIZE);
+			uiState.playingInputText.setOrigin(uiState.playingInputText.getLocalBounds().width, 0.f);
+			window.draw(uiState.playingInputText);
 		}
 
 		if (uiState.isMainMenuTextVisible)
@@ -155,17 +150,14 @@ namespace SnakeGame
 
 		if (uiState.isPauseMenuTextVisible)
 		{
+			uiState.musicMainTheme.pause();
 			DrawPauseMenu(uiState.menuState, window);
 		}
 
 		if (uiState.isGameOverTextVisible)
 		{
+			uiState.musicMainTheme.pause();
 			DrawGameOverMenu(uiState.menuState, window);
-		}
-
-		if (uiState.isWinnerTextVisible)
-		{
-			DrawWinnerMenu(uiState.menuState, window);
 		}
 	}
 

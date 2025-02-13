@@ -14,5 +14,5 @@ namespace SnakeGame
 
 	void InitWall(SWall& wall, const SGame& game);
 	void AddWall(SGame& game);
-	void DrawWall(SWall& wall, SGame& game, sf::RenderWindow& window);
+	void DrawWall(SWall& wall, const SGame& game, sf::RenderWindow& window);
 }

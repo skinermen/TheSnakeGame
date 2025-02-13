@@ -7,7 +7,7 @@ using namespace SnakeGame;
 int main()
 {
 	// Init random number generator
-	int seed = (int)time(nullptr);
+	int seed = static_cast<int>(time(nullptr));
 	srand(seed);
 	
 	// Init Window
@@ -25,7 +25,7 @@ int main()
 	while (window.isOpen())
 	{
 		// Reduce framerate to not spam CPU and GPU
-		sf::sleep(sf::milliseconds(16));
+		sleep(sf::milliseconds(16));
 
 		// Read events for close window
 		sf::Event event;
@@ -36,8 +36,6 @@ int main()
 				window.close();
 				break;
 			}
-
-			// HandleInput(event, window, game);
 		}
 
 		// Calculate time delta
@@ -54,9 +52,6 @@ int main()
 
 		window.display();
 	}
-
-	// Deinitialization
-	//DeinitializeGame(game);
 		
 	return 0;
 }

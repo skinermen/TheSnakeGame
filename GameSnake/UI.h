@@ -7,16 +7,16 @@ namespace SnakeGame
 {
 	struct UIState
 	{
-		bool isGameTextVisible;
+		bool isPlayingTextVisible;
 		bool isGameOverTextVisible;
-		bool isWinnerTextVisible;
 		bool isMainMenuTextVisible;
 		bool isPauseMenuTextVisible;
 		bool isScoreboardVisible;
 
-		sf::Text gameScoreText;
-		sf::Text inputText;
-		MenuState menuState;
+		sf::RectangleShape playingRectangle;
+		sf::Text playingScoreText;
+		sf::Text playingInputText;
+		SMenuState menuState;
 
 		// Resources
 		sf::Sprite noneSprite;
@@ -25,7 +25,6 @@ namespace SnakeGame
 		sf::Texture appleTexture;
 		sf::Texture wallTexture;
 		sf::Texture noneTexture;
-		// sf::Texture grassTexture;
 		sf::Sound sound;
 		sf::SoundBuffer eatAppleBuffer;
 		sf::SoundBuffer deathBuffer;
@@ -34,10 +33,11 @@ namespace SnakeGame
 		sf::Image icon;
 	};
 	
-	void InitTextUI(sf::Text& text, const sf::Font& font, int size, int style, sf::Color color, const std::string& name = "none text");
+	void InitTextUI(sf::Text& text, const sf::Font& font, int size, int style, sf::Color color, const std::string& name = "none");
+	void InitRectangleUI(sf::RectangleShape& rectangle, float sizeX, float sizeY, sf::Color fillColor, sf::Color outlineColor, float outlineThickness);
 	void InitUIResources(UIState& uiState);
 	void InitUI(UIState& uiState, const sf::Font& font);
-	void UpdateUI(UIState& uiState, const struct SGame& game);
-	void DrawUI(UIState& uiState, SGame& game, sf::RenderWindow& window);
+	void UpdateUI(UIState& uiState, const SGame& game);
+	void DrawUI(UIState& uiState, sf::RenderWindow& window);
 	void PlaySound(UIState& uiState, const sf::SoundBuffer& buffer);
 }

@@ -2,10 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Constants.h"
 
-// Show only the first seven players
-constexpr int MAX_PLAYERS_TO_DISPLAY = 7;
-
-struct Scoreboard
+struct SScoreboard
 {
 	std::string name;
 	int score;
@@ -13,20 +10,42 @@ struct Scoreboard
 
 namespace SnakeGame
 {
-	struct MenuState
-	{
+	struct SGame;
+	enum class GameState;
+	
+	struct SMenuState
+	{		
 		// Main menu
-		std::vector<std::string> mainMenuItems
+		std::vector<std::string> VStringMainMenuItems
 		{
 			"START GAME", "DIFFICULTY", "LEADERBOARD", "OPTIONS", "EXIT"
 		};
-		sf::Text mainMenuTextStartGame;
+		std::vector<sf::Text> vTextMainMenuItems;
+		sf::Text mainMenuTitle;
 		sf::Sprite backgroundMenu;
 		sf::Texture mainMenuTexture;
-
+		sf::RectangleShape mainMenuRectangle;
 		
+		// Pause menu
+		std::vector<std::string> VStringPauseMenuItems
+		{
+			"RESUME", "MAIN MENU"
+		};
+		std::vector<sf::Text> vTextPauseMenuItems;
+		sf::Text pauseMenuTitle;
+		sf::RectangleShape pauseMenuRectangle;
+		
+		// Game Over menu
+		std::vector<std::string> VStringGameOverMenuItems
+		{
+			"NEW GAME", "MAIN MENU"
+		};
+		std::vector<sf::Text> vTextGameOverMenuItems;
+		sf::Text gameOverScoreText;
+		sf::RectangleShape gameOverRectangle;
+
 		// Scoreboard
-		std::vector<Scoreboard> vectorScoreTable
+		std::vector<SScoreboard> VScoreTableItems
 		{
 				{"Zeus", 0}, {"Femida", 0}, {"Gerakl", 0}, {"Afrodita", 0}, {"Afina", 0},
 				{"Dionis", 0}, {"Ares", 0}, {"Germes", 0}, {"Morfey", 0}, {"YOU", 0}
@@ -36,22 +55,14 @@ namespace SnakeGame
 		sf::Text scoreboardTextInstructions;
 		sf::Sprite backgroundScoreboard;
 		sf::Texture scoreboardTexture;
-
-		// Pause menu
-		sf::Text pauseMenuText;
-		sf::Text pauseMenuTextVariants;
-
-		// Game Over menu
-		sf::Text gameOverScoreText;
-		sf::Text gameOverText;
-		sf::Text gameOverTextInstructions;
+		
 
 		// Winner Menu
 		sf::Text winnerText;
 
 		// Other
-		std::vector<sf::Text> textItems;
-		int selectedItemIndex = 0;
+		sf::Text limiter;
+		unsigned int selectedItemIndex = 0;
 		int numScores = 0;
 		sf::Font font;
 		sf::Sprite backgroundGameZone;
@@ -61,28 +72,25 @@ namespace SnakeGame
 	};
 
 	// Init
-	void InitPauseTexture(MenuState& menuState);
-	void InitMainMenu(MenuState& menuState, const sf::Font& font, std::vector<sf::Text> textItems);
-	void InitScoreboard(MenuState& menuState, int numEatenFoods, const sf::Font& font, std::vector<Scoreboard>& scoreTable);
-	void InitPauseMenu(MenuState& menuState);
-	void InitGameOverMenu(MenuState& menuState);
-	void InitWinnerMenu(MenuState& menuState);
-	void InitDifficultyMenu(MenuState& menuState);
-	void InitOptionsMenu(MenuState& menuState);
-
-	// Update
+	void InitPauseTexture(SMenuState& menuState);
+	void InitMainMenu(SMenuState& menuState, const sf::Font& font);
+	void InitPauseMenu(SMenuState& menuState, const sf::Font& font);
+	void InitGameOverMenu(SMenuState& menuState, const sf::Font& font);
+	void InitScoreboard(SMenuState& menuState, int numEatenFoods, const sf::Font& font, std::vector<SScoreboard>& scoreTable);
+	void InitDifficultyMenu(SMenuState& menuState);
+	void InitOptionsMenu(SMenuState& menuState);
 	
 	// Draw
-	void DrawMainMenu(MenuState& menuState, sf::RenderWindow& window);
-	void DrawScoreboard(MenuState& menuState, sf::RenderWindow& window);
-	void DrawPauseMenu(MenuState& menuState, sf::RenderWindow& window);
-	void DrawGameOverMenu(MenuState& menuState, sf::RenderWindow& window);
-	void DrawWinnerMenu(MenuState& menuState, sf::RenderWindow& window);
-	void DrawDifficultyMenu(MenuState& menuState, sf::RenderWindow& window);
-	void DrawOptionsMenu(MenuState& menuState, sf::RenderWindow& window);
+	void DrawMainMenu(SMenuState& menuState, sf::RenderWindow& window);
+	void DrawPauseMenu(SMenuState& menuState, sf::RenderWindow& window);
+	void DrawGameOverMenu(SMenuState& menuState, sf::RenderWindow& window);
+	void DrawScoreboard(SMenuState& menuState, sf::RenderWindow& window);
+	void DrawDifficultyMenu(SMenuState& menuState, sf::RenderWindow& window);
+	void DrawOptionsMenu(SMenuState& menuState, sf::RenderWindow& window);
+	void DrawMenuItems(sf::RenderWindow& window, std::vector<sf::Text>& menuItems);
 
 	// Service
-	void moveUp(MenuState& menuState);
-	void moveDown(MenuState& menuState);
-	int getSelectedItemIndex(MenuState& menuState);
+	void MoveUp(SMenuState& menuState, std::vector<sf::Text>& menuItems);
+	void MoveDown(SMenuState& menuState, std::vector<sf::Text>& menuItems);
+	void ResetMenuSelection(SMenuState& menuState, std::vector<sf::Text>& menuItems);
 }

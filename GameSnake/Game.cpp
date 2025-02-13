@@ -1,3 +1,4 @@
+// ReSharper disable CppClangTidyClangDiagnosticCoveredSwitchDefault
 #include "Game.h"
 #include <cassert>
 #include <random>
@@ -7,7 +8,7 @@ namespace SnakeGame
 	void InitGame(SGame& game, sf::RenderWindow& window)
 	{
 		InitUI(game.uiState, game.uiState.menuState.font);
-		SwitchGameState(game, GameState::MainMenu);
+		PushGameState(game, GameState::MainMenu);
 		InitGameState(game);
 		InitField(game);
 		window.setIcon(32, 32, game.uiState.icon.getPixelsPtr());
@@ -43,8 +44,6 @@ namespace SnakeGame
 		InitApple(apple, game);
 		game.applesVec.emplace_back(apple);
 		
-		// game.uiState.backgroundGameZone.setTexture(game.uiState.grassTexture);
-		// SetSpriteSize(game.uiState.backgroundGameZone, SCREEN_WIDTH, SCREEN_HEIGHT);
 		game.uiState.menuState.backgroundMenu.setTexture(game.uiState.menuState.mainMenuTexture);
 		SetSpriteSize(game.uiState.menuState.backgroundMenu, SCREEN_WIDTH, SCREEN_HEIGHT);
 		game.uiState.menuState.backgroundScoreboard.setTexture(game.uiState.menuState.scoreboardTexture);
@@ -56,18 +55,17 @@ namespace SnakeGame
 			game.uiState.musicMainTheme.setPlayingOffset(sf::seconds(0.f));
 			game.uiState.musicMainTheme.play();
 			game.uiState.musicMainTheme.setLoop(true);
-			game.isPlayMusic = true;
 		}
 	}
 
 	void InitField (SGame& game)
 	{
 		// Очистка игрового поля
-		for (int i = 0; i < FIELD_SIZE_X; i++)
+		for (auto& i : game.field)
 		{
-			for (int j = 0; j < FIELD_SIZE_Y; j++)
+			for (int& j : i)
 			{
-				game.field[i][j] = FIELD_CELL_TYPE_NONE;
+				j = FIELD_CELL_TYPE_NONE;
 			}
 		}
 
@@ -78,174 +76,43 @@ namespace SnakeGame
 
 	void InitStartNewGame(SGame& game)
 	{
-		SwitchGameState(game, GameState::Playing);
+		PushGameState(game, GameState::Playing);
 		InitGameState(game);
 		InitField(game);
 	}
-
-	int GetRandomEmptyCell(const SGame& game)
-	{
-		int emptyCellCount = 0;
-		for (int i = 0; i < FIELD_SIZE_X; i++)
-		{
-			for (int j = 0; j < FIELD_SIZE_Y; j++)
-			{
-				if (game.field[i][j] == FIELD_CELL_TYPE_NONE)
-				{
-					emptyCellCount++;
-				}
-			}
-		}
-		int targetEmptyCellIndex = rand() % emptyCellCount;
-		int emptyCellIndex = 0;
-		for (int i = 0; i < FIELD_SIZE_X; i++)
-		{
-			for (int j = 0; j < FIELD_SIZE_Y; j++)
-			{
-				if (game.field[i][j] == FIELD_CELL_TYPE_NONE)
-				{
-					if (emptyCellIndex == targetEmptyCellIndex)
-					{
-						return  i * FIELD_SIZE_X + j;
-					}
-					emptyCellIndex++;
-				}
-			}
-		}
-		return -1;
-	}
 	
-	void UpdateMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game)
+	void UpdateGame(SGame& game, float currentTime, sf::RenderWindow& window, const sf::Event& event)
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		switch (GetCurrentGameState(game))
 		{
-			if (!game.onKeyHold)
-			{
-				moveUp(game.uiState.menuState);
-			}
-			game.onKeyHold = true;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		{
-			if (!game.onKeyHold)
-			{
-				moveDown(game.uiState.menuState);
-			}
-			game.onKeyHold = true;
-		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-		{
-			int selectedIndex = getSelectedItemIndex(game.uiState.menuState);
-			if (GetCurrentGameState(game) == GameState::MainMenu)
-			{
-				HandleMainMenuSelection(selectedIndex, game, window);
-			}
-			if (GetCurrentGameState(game) == GameState::Difficulty)
-			{
-				////
-			}
-			if (GetCurrentGameState(game) == GameState::Options)
-			{
-				////
-			}
-		}
-		else if (event.type == sf::Event::KeyReleased)
-		{
-			game.onKeyHold = false;
-		}
-		// if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
-		// {
-		// 	if (!game.onKeyHold1)
-		// 	{
-		// 		ToggleGameMode(game, MASK_INFINIT_FOODS);
-		// 		GetButtonText(game, MASK_INFINIT_FOODS);
-		// 	}
-		// 	game.onKeyHold1 = true;
-		// }		
-	}
-
-	void HandleMainMenuSelection(int selectedIndex, SGame& game, sf::RenderWindow& window)
-	{
-		switch (selectedIndex)
-		{
-		case 0:  // Start Game
-			InitStartNewGame(game);
+		case GameState::Playing:
+			UpdatePlayingState(event, game, currentTime);
 			break;
-		case 1:  // Difficulty
-			///
+		case GameState::GameOver:
+			UpdateMenuState(game, event, window, game.uiState.menuState.vTextGameOverMenuItems);
+			break;
+		case GameState::MainMenu:
+			UpdateMenuState(game, event, window, game.uiState.menuState.vTextMainMenuItems);
+			break;
+		case GameState::PauseMenu:
+			UpdateMenuState(game, event, window, game.uiState.menuState.vTextPauseMenuItems);
+			break;
+		case GameState::Scoreboard:
+			UpdateScoreboardState(game, event);
+			break;
+		case GameState::Difficulty:  // NOLINT(bugprone-branch-clone)
+			// UpdateMenuState(game, event, window, game.uiState.menuState.vTextDifficultyMenuItems);
+			break;
+		case GameState::Options:
+			// UpdateMenuState(game, event, window, game.uiState.menuState.vTextOptionMenuItems);
+			break;
+		case GameState::None:
 				break;
-		case 2:  // Scoreboard
-			SwitchGameState(game, GameState::Scoreboard);
-			break;
-		case 3:  // Options
-			///
-				break;
-		case 4: // Exit
-			window.close();
-			break;
 		default:
 			break;
 		}
-	}
 
-	void UpdateQuitMenuState(const sf::Event& event, sf::RenderWindow& window, SGame& game)
-	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::M))
-		{
-			SwitchGameState(game,GameState::MainMenu);
-			game.onKeyHold = false;
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-		{
-			InitStartNewGame(game);
-			game.onKeyHold = false;
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-		{
-			game.onKeyHold = false;
-			window.close();
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-		{
-			if (!game.onKeyHold)
-			{
-				game.gameStateStack.pop_back();
-				game.onKeyHold = false;
-				if (game.isPlayMusic)
-				{
-					game.uiState.musicMainTheme.play();
-				}
-			}
-			game.onKeyHold = true;
-		}
-		else if (event.type == sf::Event::KeyReleased)
-		{
-			game.onKeyHold = false;
-		}
-	}
-
-	void UpdateGameOverState(SGame& game, sf::RenderWindow& window, float deltaTime)
-	{
-		game.timeSinceGameOver += deltaTime; // Надо выяснить где считается deltaTime
-		game.uiState.musicMainTheme.stop();
-			
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-		{
-			InitStartNewGame(game);
-		}
-			
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::M))
-		{
-			SwitchGameState(game, GameState::MainMenu);
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-		{
-			window.close();
-		}
+		UpdateUI(game.uiState, game);
 	}
 
 	void UpdatePlayingState(const sf::Event& event, SGame& game, float currentTime)
@@ -253,12 +120,11 @@ namespace SnakeGame
 		HandleInput(game.snake);
 		MoveSnake(game, currentTime);
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::P))
 		{
 			if (!game.onKeyHold)
 			{
-				game.gameStateStack.push_back(GameState::QuitMenu);
-				game.uiState.musicMainTheme.pause();
+				PushGameState(game, GameState::PauseMenu);
 				game.onKeyHold = true;
 			}
 			game.onKeyHold = true;
@@ -268,14 +134,70 @@ namespace SnakeGame
 			game.onKeyHold = false;
 		}
 	}
-
-	void UpdateScoreboardState(SGame& game, sf::Event& event)
+	
+	void UpdateMenuState(SGame& game, const sf::Event& event, sf::RenderWindow& window, std::vector<sf::Text>& menuItems)
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		{
 			if (!game.onKeyHold)
 			{
-				SwitchGameState(game,GameState::MainMenu);
+				MoveUp(game.uiState.menuState, menuItems);
+			}
+			game.onKeyHold = true;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		{
+			if (!game.onKeyHold)
+			{
+				MoveDown(game.uiState.menuState, menuItems);
+			}
+			game.onKeyHold = true;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+		{
+			if (!game.onKeyHold)
+			{
+				if (GetCurrentGameState(game) == GameState::MainMenu)
+				{
+					HandleMainMenuSelection(game.uiState.menuState.selectedItemIndex, game, window);
+				}
+				if (GetCurrentGameState(game) == GameState::PauseMenu)
+				{
+					HandlePauseMenuSelection(game.uiState.menuState.selectedItemIndex, game);
+				}
+				if (GetCurrentGameState(game) == GameState::GameOver)
+				{
+					HandleGameOverMenuSelection(game.uiState.menuState.selectedItemIndex, game);
+				}
+				if (GetCurrentGameState(game) == GameState::Difficulty)
+				{
+					// Difficulty
+				}
+				if (GetCurrentGameState(game) == GameState::Options)
+				{
+					// Options
+				}
+			}
+			game.onKeyHold = true;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::B) && (GetCurrentGameState(game) != GameState::MainMenu))
+		{
+			SwitchGameState(game, GetPreviousGameState(game));
+			game.uiState.musicMainTheme.play();
+		}
+		else if (event.type == sf::Event::KeyReleased)
+		{
+			game.onKeyHold = false;
+		}
+	}
+
+	void UpdateScoreboardState(SGame& game, const sf::Event& event)
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::B))
+		{
+			if (!game.onKeyHold)
+			{
+				SwitchGameState(game,GetPreviousGameState(game));
 			}
 			game.onKeyHold = true;
 		}
@@ -285,122 +207,60 @@ namespace SnakeGame
 			game.onKeyHold = false;
 		}
 	}
-
-	void UpdateGame(SGame& game, float currentTime, sf::RenderWindow& window, sf::Event event)
+	
+	void HandleMainMenuSelection(unsigned int selectedIndex, SGame& game, sf::RenderWindow& window)
 	{
-		GameState gameState = game.gameStateStack.back();
-		
-		switch (gameState)
+		switch (selectedIndex)
 		{
-		case SnakeGame::GameState::Playing:
-			UpdatePlayingState(event, game, currentTime);
+		case 0:  // Start Game
+			InitStartNewGame(game);
+			ResetMenuSelection(game.uiState.menuState, game.uiState.menuState.vTextMainMenuItems);
 			break;
-		case SnakeGame::GameState::GameOver:
-			UpdateGameOverState(game, window, currentTime);
+		case 1:  // Difficulty
+			///
+				break;
+		case 2:  // Scoreboard
+			PushGameState(game, GameState::Scoreboard);
+			ResetMenuSelection(game.uiState.menuState, game.uiState.menuState.vTextMainMenuItems);
 			break;
-		case SnakeGame::GameState::Winner:
-			UpdateGameOverState(game, window, currentTime);
+		case 3:  // Options
+			///
+				break;
+		default: // Exit
+			window.close();
 			break;
-		case SnakeGame::GameState::MainMenu:
-			UpdateMenuState(event, window, game);
-			break;
-		case SnakeGame::GameState::QuitMenu:
-			UpdateQuitMenuState(event, window, game);
-			break;
-		case SnakeGame::GameState::Scoreboard:
-			UpdateScoreboardState(game, event);
-			break;
-		case SnakeGame::GameState::Difficulty:
-			UpdateMenuState(event, window, game);
-			break;
-		case SnakeGame::GameState::Options:
-			UpdateMenuState(event, window, game);
-			break;
-		default:
-			break;
-		}
-
-		UpdateUI(game.uiState, game);
-	}
-
-	void PushGameState(SGame& game, GameState state)
-	{
-		GameState oldState = GameState::None;
-		if (game.gameStateStack.size() > 0)
-		{
-			oldState = game.gameStateStack.back();
-		}
-		
-		game.gameStateStack.push_back(state);
-	}
-
-	void PopGameState(SGame& game)
-	{
-		GameState oldState = GameState::None;
-		if (game.gameStateStack.size() > 0)
-		{
-			oldState = game.gameStateStack.back();
-		}
-
-		game.gameStateStack.pop_back();
-		GameState state = GameState::None;
-		if (game.gameStateStack.size() > 0)
-		{
-			state = game.gameStateStack.back();
 		}
 	}
 
-	void SwitchGameState(SGame& game, GameState newState)
+	void HandlePauseMenuSelection(unsigned int selectedIndex, SGame& game)
 	{
-		if (game.gameStateStack.size() > 0)
+		switch (selectedIndex)  // NOLINT(hicpp-multiway-paths-covered)
 		{
-			GameState oldState = game.gameStateStack.back();
-			game.gameStateStack.pop_back();
-			game.gameStateStack.push_back(newState);
-		}
-		else
-		{
-			PushGameState(game, newState);
+		case 0:  // Continue Game
+			SwitchGameState(game, GameState::Playing);
+			ResetMenuSelection(game.uiState.menuState, game.uiState.menuState.vTextPauseMenuItems);
+			game.uiState.musicMainTheme.play();
+			break;
+		default:  // Back to main menu
+			PushGameState(game, GameState::MainMenu);
+			ResetMenuSelection(game.uiState.menuState, game.uiState.menuState.vTextPauseMenuItems);
+			break;
 		}
 	}
 
-	GameState GetCurrentGameState(const SGame& game)
+	void HandleGameOverMenuSelection(unsigned int selectedIndex, SGame& game)
 	{
-		if (game.gameStateStack.size() > 0)
+		switch (selectedIndex)  // NOLINT(hicpp-multiway-paths-covered)
 		{
-			return game.gameStateStack.back();
+		case 0:  // New Game
+			InitStartNewGame(game);
+			ResetMenuSelection(game.uiState.menuState, game.uiState.menuState.vTextGameOverMenuItems);
+			break;
+		default:  // Back to main menu
+			PushGameState(game, GameState::MainMenu);
+			ResetMenuSelection(game.uiState.menuState, game.uiState.menuState.vTextGameOverMenuItems);
+			break;
 		}
-		else
-		{
-			return GameState::None;
-		}
-	}
-
-	GameState GetPreviousGameState(const SGame& game)
-	{
-		if (game.gameStateStack.size() > 1)
-		{
-			return game.gameStateStack.end()[-2];
-		}
-		else
-		{
-			return GameState::None;
-		}
-	}
-
-	void ToggleGameMode(SGame& game, const int modeSelection)
-	{
-		game.gameMode ^= modeSelection;
-	}
-
-	std::string GetButtonText(const SGame& game, const int modeSelection)
-	{
-		if (game.gameMode & modeSelection)
-		{
-			return "On";
-		}
-
-		return "Off";
 	}
 
 	void DrawGame(SGame& game, sf::RenderWindow& window)
@@ -413,8 +273,10 @@ namespace SnakeGame
 				switch (game.field[i][j])
 				{
 				case FIELD_CELL_TYPE_NONE:
-					game.uiState.noneSprite.setPosition(i * CELL_SIZE, j * CELL_SIZE + SCOREBAR_HEIGHT);
+					game.uiState.noneSprite.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + SCOREBOARD_HEIGHT + BORDER_SIZE);
 					window.draw(game.uiState.noneSprite);
+					break;
+				default:
 					break;
 				}
 			}
@@ -441,7 +303,109 @@ namespace SnakeGame
 		}
 
 		// Draw UI
-		DrawUI(game.uiState, game, window);
+		DrawUI(game.uiState, window);
+	}
+
+
+	void PushGameState(SGame& game, GameState state)
+	{
+		game.gameStateStack.push_back(state);
+	}
+
+	void PopGameState(SGame& game)
+	{
+		if (!game.gameStateStack.empty())
+		{
+			game.gameStateStack.pop_back();
+		}
+		else
+		{
+			game.gameStateStack.push_back(GameState::MainMenu);
+		}
+	}
+
+	void SwitchGameState(SGame& game, GameState newState)
+	{
+		if (!game.gameStateStack.empty())
+		{
+			game.gameStateStack.pop_back();
+			game.gameStateStack.push_back(newState);
+		}
+		else
+		{
+			PushGameState(game, newState);
+		}
+	}
+
+	GameState GetCurrentGameState(const SGame& game)
+	{
+		if (!game.gameStateStack.empty())
+		{
+			return game.gameStateStack.back();
+		}
+		else
+		{
+			return GameState::None;
+		}
+	}
+
+	GameState GetPreviousGameState(const SGame& game)
+	{
+		if (game.gameStateStack.size() > 1)
+		{
+			return game.gameStateStack.end()[-2];
+		}
+		else
+		{
+			return GameState::None;
+		}
+	}
+	
+	int GetRandomEmptyCell(const SGame& game)
+	{
+		int emptyCellCount = 0;
+		for (const auto& i : game.field)
+		{
+			for (int j : i)
+			{
+				if (j == FIELD_CELL_TYPE_NONE)
+				{
+					emptyCellCount++;
+				}
+			}
+		}
+		int targetEmptyCellIndex = rand() % emptyCellCount;
+		int emptyCellIndex = 0;
+		for (int i = 0; i < FIELD_SIZE_X; i++)
+		{
+			for (int j = 0; j < FIELD_SIZE_Y; j++)
+			{
+				if (game.field[i][j] == FIELD_CELL_TYPE_NONE)
+				{
+					if (emptyCellIndex == targetEmptyCellIndex)
+					{
+						return  i * FIELD_SIZE_X + j;
+					}
+					emptyCellIndex++;
+				}
+			}
+		}
+		return -1;
+	}
+
+	std::string GetButtonText(const SGame& game, const int modeSelection)
+	{
+		if (game.gameMode & modeSelection)
+		{
+			return "On";
+		}
+
+		return "Off";
+	}
+
+	void ToggleGameMode(SGame& game, const int modeSelection)
+	{
+		game.gameMode ^= modeSelection;
 	}
 }
 

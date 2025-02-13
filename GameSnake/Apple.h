@@ -14,5 +14,5 @@ namespace SnakeGame
 
 	void InitApple(SApple& apple, const SGame& game);
 	void AddApple(SGame& game);
-	void DrawApple(SApple& apple, SGame& game, sf::RenderWindow& window);
+	void DrawApple(SApple& apple, const SGame& game, sf::RenderWindow& window);
 }

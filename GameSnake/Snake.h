@@ -11,8 +11,7 @@ namespace SnakeGame
 		Right = 0,
 		Up,
 		Left,
-		Down,
-		StartPosition
+		Down
 	};
 
 	struct SSnake
@@ -20,7 +19,7 @@ namespace SnakeGame
 		Position2D position;
 		float lastUpdateTime = 0.0f; // Время последнего обновления
 		float movementInterval = INITIAL_SPEED_HARD; // Интервал между перемещениями (в секундах)
-		SnakeDirection direction = SnakeDirection::StartPosition;
+		SnakeDirection direction;
 		sf::Sprite spriteHead;
 		sf::Sprite spriteBody;
 		int snakeLength;
@@ -29,9 +28,9 @@ namespace SnakeGame
 
 	struct SGame;
 
-	void InitSnake(SSnake& snake, SGame& game);
+	void InitSnake(SSnake& snake, const SGame& game);
 	void AddSnake(SGame& game);
-	void DrawSnake(SSnake& snake, SGame& game, sf::RenderWindow& window);
+	void DrawSnake(SSnake& snake, const SGame& game, sf::RenderWindow& window);
 	void GrowSnake(SGame& game);
 	void HandleInput(SSnake& player);
 	void MoveSnake(SGame& game, float currentTime);

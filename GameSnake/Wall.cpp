@@ -13,10 +13,10 @@ namespace SnakeGame
 	void AddWall(SGame& game)
 	{
 		// Добавление стен по периметру
-		for (int i = 0; i < FIELD_SIZE_X; i++)
+		for (auto& i : game.field)
 		{
-			game.field[i][0] = FIELD_CELL_TYPE_WALL;
-			game.field[i][FIELD_SIZE_Y - 1] = FIELD_CELL_TYPE_WALL;
+			i[0] = FIELD_CELL_TYPE_WALL;
+			i[FIELD_SIZE_Y - 1] = FIELD_CELL_TYPE_WALL;
 		}
 		for (int j = 1; j < FIELD_SIZE_Y - 1; j++)
 		{
@@ -25,7 +25,7 @@ namespace SnakeGame
 		}
 	}
 
-	void DrawWall(SWall& wall, SGame& game, sf::RenderWindow& window)
+	void DrawWall(SWall& wall, const SGame& game, sf::RenderWindow& window)
 	{
 		for (int i = 0; i < FIELD_SIZE_X; i++)
 		{
@@ -35,7 +35,7 @@ namespace SnakeGame
 				if (game.field[i][j] == FIELD_CELL_TYPE_WALL)
 				{
 					// Устанавливаем позицию спрайта стены
-					wall.sprite.setPosition(i * CELL_SIZE, j * CELL_SIZE + SCOREBAR_HEIGHT);
+					wall.sprite.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + SCOREBOARD_HEIGHT + BORDER_SIZE);
 					window.draw(wall.sprite);  // Рисуем стену
 				}
 			}

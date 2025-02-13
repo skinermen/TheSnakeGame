@@ -20,7 +20,7 @@ namespace SnakeGame
 		game.field[applePos / FIELD_SIZE_X][applePos % FIELD_SIZE_X] = FIELD_CELL_TYPE_APPLE;
 	}
 
-	void DrawApple(SApple& apple, SGame& game, sf::RenderWindow& window)
+	void DrawApple(SApple& apple, const SGame& game, sf::RenderWindow& window)
 	{
 		for (int i = 0; i < FIELD_SIZE_X; i++)
 		{
@@ -29,8 +29,10 @@ namespace SnakeGame
 				switch (game.field[i][j])
 				{
 				case FIELD_CELL_TYPE_APPLE:
-					apple.sprite.setPosition(i * CELL_SIZE, j * CELL_SIZE + SCOREBAR_HEIGHT);
+					apple.sprite.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + SCOREBOARD_HEIGHT + BORDER_SIZE);
 					window.draw(apple.sprite);
+					break;
+				default:
 					break;
 				}
 			}

@@ -4,21 +4,23 @@
 namespace SnakeGame
 {
 #define FIELD_CELL_TYPE_NONE 0
-#define FIELD_CELL_TYPE_APPLE -1
-#define FIELD_CELL_TYPE_WALL -2
-	const int FIELD_SIZE_X = 35;
-	const int FIELD_SIZE_Y = 25;
-	const int CELL_SIZE = 32;
+#define FIELD_CELL_TYPE_APPLE (-1)
+#define FIELD_CELL_TYPE_WALL (-2)
+	constexpr int FIELD_SIZE_X = 25;
+	constexpr int FIELD_SIZE_Y = 20;
+	constexpr int CELL_SIZE = 32;
 	
 	const std::string RESOURCES_PATH = "Resources/";
 	
 	// Size
-	constexpr int SCOREBAR_HEIGHT = 58;
-	constexpr int SCREEN_WIDTH = FIELD_SIZE_X * CELL_SIZE;
-	constexpr int SCREEN_HEIGHT = FIELD_SIZE_Y * CELL_SIZE + SCOREBAR_HEIGHT;
-	constexpr float SNAKE_SEGMENT_SIZE = CELL_SIZE;
-	constexpr float FOOD_SIZE = CELL_SIZE;
-	constexpr float WALL_SIZE = CELL_SIZE;
+	constexpr int MAX_LINES_TO_SCOREBOARD = 7;
+	constexpr int SCOREBOARD_HEIGHT = 58;
+	constexpr int BORDER_SIZE = 10;
+	constexpr int SCREEN_WIDTH = FIELD_SIZE_X * CELL_SIZE + BORDER_SIZE * 2;
+	constexpr int SCREEN_HEIGHT = FIELD_SIZE_Y * CELL_SIZE + SCOREBOARD_HEIGHT + BORDER_SIZE * 2;
+	constexpr int SNAKE_SEGMENT_SIZE = CELL_SIZE;
+	constexpr int FOOD_SIZE = CELL_SIZE;
+	constexpr int WALL_SIZE = CELL_SIZE;
 	constexpr int SIZE_LEADERBOARD = 10;
 
 	// Variable complexity

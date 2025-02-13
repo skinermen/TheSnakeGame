@@ -4,7 +4,7 @@
 
 namespace SnakeGame
 {
-	void InitSnake(SSnake& snake, SGame& game)
+	void InitSnake(SSnake& snake, const SGame& game)
 	{
 		// Init snake sprite
 		snake.spriteHead.setTexture(game.uiState.snakeTextureHead);
@@ -30,7 +30,7 @@ namespace SnakeGame
 		}
 	}
 
-	void DrawSnake(SSnake& snake, SGame& game, sf::RenderWindow& window)
+	void DrawSnake(SSnake& snake, const SGame& game, sf::RenderWindow& window)
 	{
 		// Сначала отрисовываем голову
 		for (int i = 0; i < FIELD_SIZE_X; i++)
@@ -39,7 +39,7 @@ namespace SnakeGame
 			{
 				if (game.field[i][j] == snake.snakeLength) // Условие для головы
 				{
-					snake.spriteHead.setPosition(i * CELL_SIZE, j * CELL_SIZE + SCOREBAR_HEIGHT);
+					snake.spriteHead.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + SCOREBOARD_HEIGHT + BORDER_SIZE);
 					window.draw(snake.spriteHead);
 				}
 			}
@@ -52,7 +52,7 @@ namespace SnakeGame
 			{
 				if (game.field[i][j] > FIELD_CELL_TYPE_NONE && game.field[i][j] < snake.snakeLength)
 				{
-					snake.spriteBody.setPosition(i * CELL_SIZE, j * CELL_SIZE + SCOREBAR_HEIGHT);
+					snake.spriteBody.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + SCOREBOARD_HEIGHT + BORDER_SIZE);
 					window.draw(snake.spriteBody);
 				}
 			}
@@ -61,13 +61,13 @@ namespace SnakeGame
 
 	void GrowSnake(SGame& game)
 	{
-		for (int i = 0; i < FIELD_SIZE_X; i++)
+		for (auto& i : game.field)
 		{
-			for (int j = 0; j < FIELD_SIZE_Y; j++)
+			for (int& j : i)
 			{
-				if (game.field[i][j] > FIELD_CELL_TYPE_NONE)
+				if (j > FIELD_CELL_TYPE_NONE)
 				{
-					game.field[i][j]++;
+					j++;
 				}
 			}
 		}
@@ -165,7 +165,9 @@ namespace SnakeGame
 	                player.position.y++;
 	                if (player.position.y >= FIELD_SIZE_Y) player.position.y = 0;
 	                break;
-	        }
+                default:  // NOLINT(clang-diagnostic-covered-switch-default)
+                	break;
+		    }
 
 	        // Проверяем столкновение c собой
 	        if (game.field[player.position.x][player.position.y] > FIELD_CELL_TYPE_NONE)
@@ -200,13 +202,13 @@ namespace SnakeGame
 	        game.field[player.position.x][player.position.y] = player.snakeLength + 1;
 
 	        // Уменьшаем время жизни частей тела
-	        for (int i = 0; i < FIELD_SIZE_X; i++)
+	        for (auto& i : game.field)
 	        {
-	            for (int j = 0; j < FIELD_SIZE_Y; j++)
+	            for (int& j : i)
 	            {
-	                if (game.field[i][j] > FIELD_CELL_TYPE_NONE)
+	                if (j > FIELD_CELL_TYPE_NONE)
 	                {
-	                    game.field[i][j]--;
+		                j--;
 	                }
 	            }
 	        }
