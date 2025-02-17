@@ -58,13 +58,28 @@ namespace SnakeGame
 			menuState.vTextGameOverMenuItems.push_back(menuItem);
 		}
 	}
-	
-	void InitScoreboard(SMenuState& menuState, int numEatenFoods, const sf::Font& font, std::vector<SScoreboard>& scoreTable)
-	{
-		InitTextUI(menuState.scoreboardTextTitle, font, 48, 1, sf::Color::White, "Scoreboard:");
-		InitTextUI(menuState.scoreboardTextInstructions, font, 24, 1, sf::Color::White, "Press ESC to return to the main menu");
 
-		for (SScoreboard& item : menuState.VScoreTableItems)
+	void InitDifficultyMenu(SMenuState& menuState, const sf::Font& font)
+	{
+		InitRectangleUI(menuState.difficultyMenuRectangle, SCREEN_WIDTH - BORDER_SIZE * 2,
+			SCREEN_HEIGHT - BORDER_SIZE * 2, sf::Color::Black, sf::Color::White, 10.f);
+		InitTextUI(menuState.difficultyMenuTitle, menuState.font, 48, 1, sf::Color::White, "Choosing the difficulty");
+
+		for (int i = 0; i < menuState.VStringDifficultyMenuItems.size(); i++)  // NOLINT(clang-diagnostic-sign-compare)
+		{
+			sf::Text menuItem;
+			InitTextUI(menuItem, font, 50, 1, (i == 0 ? sf::Color::Green : sf::Color::White),
+				menuState.VStringDifficultyMenuItems[i].nameDifficulty);
+			menuState.vTextDifficultyMenuItems.push_back(menuItem);
+		}
+	}
+	
+	void InitLeaderboard(SMenuState& menuState, int numEatenFoods, const sf::Font& font, std::vector<SLeaderboard>& leaderTable)
+	{
+		InitTextUI(menuState.leaderboardTextTitle, font, 48, 1, sf::Color::White, "Scoreboard:");
+		InitTextUI(menuState.leaderboardTextInstructions, font, 24, 1, sf::Color::White, "Press ESC to return to the main menu");
+
+		for (SLeaderboard& item : menuState.VLeaderboardItems)
 		{
 			if (item.name == "YOU")
 			{
@@ -80,18 +95,18 @@ namespace SnakeGame
         
 		// Sort vector Score Table
 		std::ranges::stable_sort
-		(menuState.VScoreTableItems, [](const SScoreboard& a, const SScoreboard& b)
+		(menuState.VLeaderboardItems, [](const SLeaderboard& a, const SLeaderboard& b)
 			{
 				return a.score > b.score;
 			}
 		);
 
 		// Init text
-		for (SScoreboard& item : scoreTable)
+		for (SLeaderboard& item : leaderTable)
 		{
 			if (item.name == "YOU")
 			{
-				InitTextUI(menuState.scoreboardNameText[i], font, 40, 1, sf::Color::White);
+				InitTextUI(menuState.leaderboardNameText[i], font, 40, 1, sf::Color::White);
 				if (item.score < numEatenFoods)
 				{
 					item.score = numEatenFoods;
@@ -99,18 +114,13 @@ namespace SnakeGame
 			}
 			else
 			{
-				InitTextUI(menuState.scoreboardNameText[i], font, 40, 1, sf::Color::Green);
+				InitTextUI(menuState.leaderboardNameText[i], font, 40, 1, sf::Color::Green);
 			}
 
-			menuState.scoreboardNameText[i].setString(item.name + ": " + std::to_string(item.score));
-			menuState.scoreboardNameText[i].setOrigin(100.f, 10.f);
+			menuState.leaderboardNameText[i].setString(item.name + ": " + std::to_string(item.score));
+			menuState.leaderboardNameText[i].setOrigin(100.f, 10.f);
 			++i;
 		}
-	}
-	
-	void InitDifficultyMenu(SMenuState& menuState)
-	{
-		
 	}
 
 	void InitOptionsMenu(SMenuState& menuState)
@@ -152,7 +162,7 @@ namespace SnakeGame
 		menuState.gameOverRectangle.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f);
 		window.draw(menuState.gameOverRectangle);
 
-		menuState.gameOverScoreText.setPosition(SCREEN_WIDTH / 2.f, 15.f);
+		menuState.gameOverScoreText.setPosition(SCREEN_WIDTH / 2.f, menuState.gameOverScoreText.getLocalBounds().height);
 		menuState.gameOverScoreText.setOrigin(menuState.gameOverScoreText.getLocalBounds().width / 2.f,
 			menuState.gameOverScoreText.getLocalBounds().height / 2.f);
 		window.draw(menuState.gameOverScoreText);
@@ -160,32 +170,41 @@ namespace SnakeGame
 		DrawMenuItems(window, menuState.vTextGameOverMenuItems);
 	}
 	
-	void DrawScoreboard(SMenuState& menuState, sf::RenderWindow& window)
+	void DrawDifficultyMenu(SMenuState& menuState, sf::RenderWindow& window)
+	{
+		menuState.difficultyMenuRectangle.setPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT / 2.f);
+		window.draw(menuState.difficultyMenuRectangle);
+
+		menuState.difficultyMenuTitle.setPosition(SCREEN_WIDTH / 2.f, menuState.difficultyMenuTitle.getLocalBounds().height);
+		menuState.difficultyMenuTitle.setOrigin(menuState.difficultyMenuTitle.getLocalBounds().width / 2.f,
+			menuState.difficultyMenuTitle.getLocalBounds().height / 2.f);
+		window.draw(menuState.difficultyMenuTitle);
+
+		DrawMenuItems(window, menuState.vTextDifficultyMenuItems);
+	}
+	
+	void DrawLeaderboard(SMenuState& menuState, sf::RenderWindow& window)
 	{
 		// Blur screen
 		window.draw(menuState.pauseBlurSprite);
-		menuState.backgroundLast = menuState.backgroundScoreboard;
+		menuState.backgroundLast = menuState.leaderboardBackground;
 			
 		// Draw
-		menuState.scoreboardTextTitle.setPosition(SCREEN_WIDTH / 2.f, 40.f);
-		window.draw(menuState.scoreboardTextTitle);
+		menuState.leaderboardTextTitle.setPosition(SCREEN_WIDTH / 2.f, 40.f);
+		window.draw(menuState.leaderboardTextTitle);
 			
-		menuState.scoreboardTextInstructions.setPosition(window.getSize().x / 2.f, window.getSize().y - 50.f);
-		window.draw(menuState.scoreboardTextInstructions);
+		menuState.leaderboardTextInstructions.setPosition(window.getSize().x / 2.f, window.getSize().y - 50.f);
+		window.draw(menuState.leaderboardTextInstructions);
 			
 		float verticalIndentation = 0.f;
-		for (int i = 0; i < MAX_LINES_TO_SCOREBOARD; ++i)
+		for (int i = 0; i < MAX_LINES_TO_LEADERBOARD; ++i)
 		{
-			menuState.scoreboardNameText[i].setPosition(window.getSize().x / 2.f, 90.f + verticalIndentation);
-			window.draw(menuState.scoreboardNameText[i]);
+			menuState.leaderboardNameText[i].setPosition(window.getSize().x / 2.f, 90.f + verticalIndentation);
+			window.draw(menuState.leaderboardNameText[i]);
 			verticalIndentation += 40.f;
 		}
 	}
 	
-	void DrawDifficultyMenu(SMenuState& menuState, sf::RenderWindow& window)
-	{
-		
-	}
 
 	void DrawOptionsMenu(SMenuState& menuState, sf::RenderWindow& window)
 	{
@@ -223,17 +242,22 @@ namespace SnakeGame
 		}
 	}
 
-	void ResetMenuSelection(SMenuState& menuState, std::vector<sf::Text>& menuItems)
+	void ResetMenuSelection(const SMenuState& menuState, std::vector<sf::Text>& menuItems)
 	{
-		if (!menuItems.empty())
+		for (auto& text : menuItems)
 		{
-			for (int i = 0; i < menuItems.size(); i++)  // NOLINT(clang-diagnostic-sign-compare)
-			{
-				menuItems[menuState.selectedItemIndex].setFillColor(sf::Color::White);
-			}
-			menuState.selectedItemIndex = 0;
-			menuItems[menuState.selectedItemIndex].setFillColor(sf::Color::Green);
+			text.setFillColor(sf::Color::White);
 		}
+		menuItems[menuState.selectedItemIndex].setFillColor(sf::Color::Green);
+	}
+	void ResetAllMenuSelection(SMenuState& menuState)
+	{
+		menuState.selectedItemIndex = 0;
+
+		ResetMenuSelection(menuState, menuState.vTextMainMenuItems);
+		ResetMenuSelection(menuState, menuState.vTextDifficultyMenuItems);
+		ResetMenuSelection(menuState, menuState.vTextPauseMenuItems);
+		ResetMenuSelection(menuState, menuState.vTextGameOverMenuItems);
 	}
 	
 }

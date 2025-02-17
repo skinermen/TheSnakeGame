@@ -16,7 +16,7 @@ namespace SnakeGame
 		Playing,
 		GameOver,
 		PauseMenu,
-		Scoreboard,
+		Leaderboard,
 		Difficulty,
 		Options,
 	};
@@ -28,9 +28,11 @@ namespace SnakeGame
 
 		// Key state
 		bool onKeyHold = false;
+		bool difficultySelected = false;
 		
 		// Global game data
 		int numEatenApples = 0;
+		int scoresPerApple = SCORES_PER_APPLE_EASY;
 		float timeSinceGameOver = 0.f;
 		UIState uiState;
 		std::vector<GameState> gameStateStack;
@@ -56,11 +58,12 @@ namespace SnakeGame
 	void UpdateGame(SGame& game, float currentTime, sf::RenderWindow& window, const sf::Event& event);
 	void UpdatePlayingState(const sf::Event& event, SGame& game, float currentTime);
 	void UpdateMenuState(SGame& game, const sf::Event& event, sf::RenderWindow& window, std::vector<sf::Text>& menuItems);
-	void UpdateScoreboardState(SGame& game, const sf::Event& event);
+	void UpdateLeaderboardState(SGame& game, const sf::Event& event);
 	
 	void HandleMainMenuSelection(unsigned int selectedIndex, SGame& game, sf::RenderWindow& window);
 	void HandlePauseMenuSelection(unsigned int selectedIndex, SGame& game);
 	void HandleGameOverMenuSelection(unsigned int selectedIndex, SGame& game);
+	void HandleDifficultyMenuSelection(unsigned int selectedIndex, SGame& game);
 
 	void DrawGame(SGame& game, sf::RenderWindow& window);
 	

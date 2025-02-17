@@ -2,10 +2,17 @@
 #include <SFML/Graphics.hpp>
 #include "Constants.h"
 
-struct SScoreboard
+struct SLeaderboard
 {
 	std::string name;
 	int score;
+};
+
+struct SDifficultySettings
+{
+	std::string nameDifficulty;
+	float snakeSpeed;
+	int scoresPerApple;
 };
 
 namespace SnakeGame
@@ -44,19 +51,27 @@ namespace SnakeGame
 		sf::Text gameOverScoreText;
 		sf::RectangleShape gameOverRectangle;
 
-		// Scoreboard
-		std::vector<SScoreboard> VScoreTableItems
+		// Difficulty menu
+		std::vector<SDifficultySettings> VStringDifficultyMenuItems
 		{
-				{"Zeus", 0}, {"Femida", 0}, {"Gerakl", 0}, {"Afrodita", 0}, {"Afina", 0},
-				{"Dionis", 0}, {"Ares", 0}, {"Germes", 0}, {"Morfey", 0}, {"YOU", 0}
+			{"EASY", INITIAL_SPEED_EASY, SCORES_PER_APPLE_EASY},
+			{"HARDER EASY", INITIAL_SPEED_HARDER_EASY, SCORES_PER_APPLE_HARDER_EASY},
+			{"MEDIUM", INITIAL_SPEED_MEDIUM, SCORES_PER_APPLE_MEDIUM},
+			{"EASIER HARD", INITIAL_SPEED_EASIER_HARD, SCORES_PER_APPLE_EASIER_HARD},
+			{"HARD", INITIAL_SPEED_HARD, SCORES_PER_APPLE_HARD}
 		};
-		sf::Text scoreboardNameText[SIZE_LEADERBOARD];
-		sf::Text scoreboardTextTitle;
-		sf::Text scoreboardTextInstructions;
-		sf::Sprite backgroundScoreboard;
-		sf::Texture scoreboardTexture;
-		
+		std::vector<sf::Text> vTextDifficultyMenuItems;
+		sf::Text difficultyMenuTitle;
+		sf::RectangleShape difficultyMenuRectangle;
 
+		// Leaderboard
+		std::vector<SLeaderboard> VLeaderboardItems;
+		sf::Text leaderboardNameText[SIZE_LEADERBOARD];
+		sf::Text leaderboardTextTitle;
+		sf::Text leaderboardTextInstructions;
+		sf::Sprite leaderboardBackground;
+		sf::Texture leaderboardTexture;
+		
 		// Winner Menu
 		sf::Text winnerText;
 
@@ -76,15 +91,15 @@ namespace SnakeGame
 	void InitMainMenu(SMenuState& menuState, const sf::Font& font);
 	void InitPauseMenu(SMenuState& menuState, const sf::Font& font);
 	void InitGameOverMenu(SMenuState& menuState, const sf::Font& font);
-	void InitScoreboard(SMenuState& menuState, int numEatenFoods, const sf::Font& font, std::vector<SScoreboard>& scoreTable);
-	void InitDifficultyMenu(SMenuState& menuState);
+	void InitDifficultyMenu(SMenuState& menuState, const sf::Font& font);
+	void InitLeaderboard(SMenuState& menuState, int numEatenFoods, const sf::Font& font, std::vector<SLeaderboard>& leaderTable);
 	void InitOptionsMenu(SMenuState& menuState);
 	
 	// Draw
 	void DrawMainMenu(SMenuState& menuState, sf::RenderWindow& window);
 	void DrawPauseMenu(SMenuState& menuState, sf::RenderWindow& window);
 	void DrawGameOverMenu(SMenuState& menuState, sf::RenderWindow& window);
-	void DrawScoreboard(SMenuState& menuState, sf::RenderWindow& window);
+	void DrawLeaderboard(SMenuState& menuState, sf::RenderWindow& window);
 	void DrawDifficultyMenu(SMenuState& menuState, sf::RenderWindow& window);
 	void DrawOptionsMenu(SMenuState& menuState, sf::RenderWindow& window);
 	void DrawMenuItems(sf::RenderWindow& window, std::vector<sf::Text>& menuItems);
@@ -92,5 +107,6 @@ namespace SnakeGame
 	// Service
 	void MoveUp(SMenuState& menuState, std::vector<sf::Text>& menuItems);
 	void MoveDown(SMenuState& menuState, std::vector<sf::Text>& menuItems);
-	void ResetMenuSelection(SMenuState& menuState, std::vector<sf::Text>& menuItems);
+	void ResetMenuSelection(const SMenuState& menuState, std::vector<sf::Text>& menuItems);
+	void ResetAllMenuSelection(SMenuState& menuState);
 }

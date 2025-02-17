@@ -39,7 +39,7 @@ namespace SnakeGame
 			{
 				if (game.field[i][j] == snake.snakeLength) // Условие для головы
 				{
-					snake.spriteHead.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + SCOREBOARD_HEIGHT + BORDER_SIZE);
+					snake.spriteHead.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + LEADERBOARD_HEIGHT + BORDER_SIZE);
 					window.draw(snake.spriteHead);
 				}
 			}
@@ -52,7 +52,7 @@ namespace SnakeGame
 			{
 				if (game.field[i][j] > FIELD_CELL_TYPE_NONE && game.field[i][j] < snake.snakeLength)
 				{
-					snake.spriteBody.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + SCOREBOARD_HEIGHT + BORDER_SIZE);
+					snake.spriteBody.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + LEADERBOARD_HEIGHT + BORDER_SIZE);
 					window.draw(snake.spriteBody);
 				}
 			}
@@ -192,7 +192,7 @@ namespace SnakeGame
 	        {
 	            player.snakeLength++;
 	        	game.numEatenApples += 1;
-	        	game.uiState.menuState.numScores += SCORES_PER_APPLE_HARD;
+	        	game.uiState.menuState.numScores += game.scoresPerApple;
 	            GrowSnake(game);
 	            AddApple(game);
 	            PlaySound(game.uiState, game.uiState.eatAppleBuffer);

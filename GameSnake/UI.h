@@ -8,10 +8,12 @@ namespace SnakeGame
 	struct UIState
 	{
 		bool isPlayingTextVisible;
-		bool isGameOverTextVisible;
 		bool isMainMenuTextVisible;
 		bool isPauseMenuTextVisible;
-		bool isScoreboardVisible;
+		bool isGameOverMenuTextVisible;
+		bool isDifficultyMenuTextVisible;
+		bool isScoreboardMenuVisible;
+		bool isOptionsMenuTextVisible;
 
 		sf::RectangleShape playingRectangle;
 		sf::Text playingScoreText;

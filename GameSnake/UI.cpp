@@ -33,8 +33,7 @@ namespace SnakeGame
 		assert(uiState.appleTexture.loadFromFile(RESOURCES_PATH + "\\Apple.png"));
 		assert(uiState.wallTexture.loadFromFile(RESOURCES_PATH + "\\wall.png"));
 		assert(uiState.noneTexture.loadFromFile(RESOURCES_PATH + "\\none.png"));
-		// assert(uiState.grassTexture.loadFromFile(RESOURCES_PATH + "\\Grass.png"));
-		assert(uiState.menuState.scoreboardTexture.loadFromFile(RESOURCES_PATH + "\\Scoreboard.png"));
+		assert(uiState.menuState.leaderboardTexture.loadFromFile(RESOURCES_PATH + "\\Scoreboard.png"));
 		assert(uiState.menuState.mainMenuTexture.loadFromFile(RESOURCES_PATH + "\\Menu.png"));
 		assert(uiState.icon.loadFromFile(RESOURCES_PATH + "\\Icon.png"));
 		assert(uiState.eatAppleBuffer.loadFromFile(RESOURCES_PATH + "\\MushroomEat.wav"));
@@ -60,66 +59,103 @@ namespace SnakeGame
 		// Main Menu Text
 		InitMainMenu(uiState.menuState, font);
 		
+		// Pause Menu Text
+		InitPauseMenu(uiState.menuState, font);
+
 		// Game over Text
 		InitGameOverMenu(uiState.menuState, font);
 
+		// Difficulty Menu Text
+		InitDifficultyMenu(uiState.menuState, font);
+
 		// Score table
-		InitScoreboard(uiState.menuState, uiState.menuState.numScores, uiState.menuState.font, uiState.menuState.VScoreTableItems);
+		InitLeaderboard(uiState.menuState, uiState.menuState.numScores, uiState.menuState.font, uiState.menuState.VLeaderboardItems);
 		
-		// Pause Menu Text
-		InitPauseMenu(uiState.menuState, font);
 	}
 
 	void UpdateUI(UIState& uiState, const SGame& game)
 	{
 		uiState.playingScoreText.setString("Scores: " + std::to_string(uiState.menuState.numScores));
 		uiState.menuState.gameOverScoreText.setString("Scores: " + std::to_string(uiState.menuState.numScores));
-		uiState.isGameOverTextVisible = GetCurrentGameState(game) == GameState::GameOver;
-
-		if (GetCurrentGameState(game) == GameState::MainMenu)
-		{
-			uiState.isPlayingTextVisible = true;
-			uiState.isGameOverTextVisible = false;
-			uiState.isMainMenuTextVisible = true;
-			uiState.isPauseMenuTextVisible = false;
-			uiState.isScoreboardVisible = false;
-		}
+		uiState.isGameOverMenuTextVisible = GetCurrentGameState(game) == GameState::GameOver;
 
 		if (GetCurrentGameState(game) == GameState::Playing)
 		{
 			uiState.isPlayingTextVisible = true;
-			uiState.isGameOverTextVisible = false;
 			uiState.isMainMenuTextVisible = false;
 			uiState.isPauseMenuTextVisible = false;
-			uiState.isScoreboardVisible = false;
+			uiState.isGameOverMenuTextVisible = false;
+			uiState.isDifficultyMenuTextVisible = false;
+			uiState.isScoreboardMenuVisible = false;
+			uiState.isOptionsMenuTextVisible = false;
 		}
-
-		if (GetCurrentGameState(game) == GameState::GameOver)
+		
+		if (GetCurrentGameState(game) == GameState::MainMenu)
 		{
 			uiState.isPlayingTextVisible = false;
-			uiState.isGameOverTextVisible = true;
-			uiState.isMainMenuTextVisible = false;
+			uiState.isMainMenuTextVisible = true;
 			uiState.isPauseMenuTextVisible = false;
-			uiState.isScoreboardVisible = false;
-		}
-
-		if (GetCurrentGameState(game) == GameState::Scoreboard)
-		{
-			uiState.isPlayingTextVisible = false;
-			uiState.isGameOverTextVisible = false;
-			uiState.isMainMenuTextVisible = false;
-			uiState.isPauseMenuTextVisible = false;
-			uiState.isScoreboardVisible = true;
+			uiState.isGameOverMenuTextVisible = false;
+			uiState.isDifficultyMenuTextVisible = false;
+			uiState.isScoreboardMenuVisible = false;
+			uiState.isOptionsMenuTextVisible = false;
 		}
 
 		if (GetCurrentGameState(game) == GameState::PauseMenu)
 		{
 			uiState.isPlayingTextVisible = false;
-			uiState.isGameOverTextVisible = false;
 			uiState.isMainMenuTextVisible = false;
 			uiState.isPauseMenuTextVisible = true;
-			uiState.isScoreboardVisible = false;
+			uiState.isGameOverMenuTextVisible = false;
+			uiState.isDifficultyMenuTextVisible = false;
+			uiState.isScoreboardMenuVisible = false;
+			uiState.isOptionsMenuTextVisible = false;
 		}
+		
+		if (GetCurrentGameState(game) == GameState::GameOver)
+		{
+			uiState.isPlayingTextVisible = false;
+			uiState.isMainMenuTextVisible = false;
+			uiState.isPauseMenuTextVisible = false;
+			uiState.isGameOverMenuTextVisible = true;
+			uiState.isDifficultyMenuTextVisible = false;
+			uiState.isScoreboardMenuVisible = false;
+			uiState.isOptionsMenuTextVisible = false;
+		}
+
+		if (GetCurrentGameState(game) == GameState::Difficulty)
+		{
+			uiState.isPlayingTextVisible = false;
+			uiState.isMainMenuTextVisible = false;
+			uiState.isPauseMenuTextVisible = false;
+			uiState.isGameOverMenuTextVisible = false;
+			uiState.isDifficultyMenuTextVisible = true;
+			uiState.isScoreboardMenuVisible = false;
+			uiState.isOptionsMenuTextVisible = false;
+		}
+		
+		if (GetCurrentGameState(game) == GameState::Leaderboard)
+		{
+			uiState.isPlayingTextVisible = false;
+			uiState.isMainMenuTextVisible = false;
+			uiState.isPauseMenuTextVisible = false;
+			uiState.isGameOverMenuTextVisible = false;
+			uiState.isDifficultyMenuTextVisible = false;
+			uiState.isScoreboardMenuVisible = true;
+			uiState.isOptionsMenuTextVisible = false;
+		}
+
+		if (GetCurrentGameState(game) == GameState::Options)
+		{
+			uiState.isPlayingTextVisible = false;
+			uiState.isMainMenuTextVisible = false;
+			uiState.isPauseMenuTextVisible = false;
+			uiState.isGameOverMenuTextVisible = false;
+			uiState.isDifficultyMenuTextVisible = false;
+			uiState.isScoreboardMenuVisible = false;
+			uiState.isOptionsMenuTextVisible = true;
+		}
+
 	}
 
 	void DrawUI(UIState& uiState, sf::RenderWindow& window)
@@ -143,21 +179,31 @@ namespace SnakeGame
 			DrawMainMenu(uiState.menuState, window);
 		}
 
-		if (uiState.isScoreboardVisible)
-		{
-			DrawScoreboard(uiState.menuState, window);
-		}
-
 		if (uiState.isPauseMenuTextVisible)
 		{
 			uiState.musicMainTheme.pause();
 			DrawPauseMenu(uiState.menuState, window);
 		}
 
-		if (uiState.isGameOverTextVisible)
+		if (uiState.isGameOverMenuTextVisible)
 		{
 			uiState.musicMainTheme.pause();
 			DrawGameOverMenu(uiState.menuState, window);
+		}
+
+		if (uiState.isDifficultyMenuTextVisible)
+		{
+			DrawDifficultyMenu(uiState.menuState, window);
+		}
+
+		if (uiState.isScoreboardMenuVisible)
+		{
+			DrawLeaderboard(uiState.menuState, window);
+		}
+		
+		if (uiState.isOptionsMenuTextVisible)
+		{
+			DrawOptionsMenu(uiState.menuState, window);
 		}
 	}
 
