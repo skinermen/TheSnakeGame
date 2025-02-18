@@ -161,6 +161,7 @@ namespace SnakeGame
 			}				
 			game.uiState.menuState.nameInputMenuText.setString("Enter your name: " + game.uiState.menuState.nameInputPlayerName);
 		}
+		
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
 		{
 			if (!game.onKeyHold)
