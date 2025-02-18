@@ -1,13 +1,14 @@
 // ReSharper disable CppClangTidyClangDiagnosticCoveredSwitchDefault
 #include "Game.h"
 #include <cassert>
+#include <iostream>
 #include <random>
 
 namespace SnakeGame
 {
 	void InitGame(SGame& game, sf::RenderWindow& window)
 	{
-		InitUI(game.uiState, game.uiState.menuState.font);
+		InitUI(game.uiState);
 		PushGameState(game, GameState::MainMenu);
 		InitGameState(game);
 		InitField(game);
@@ -88,6 +89,12 @@ namespace SnakeGame
 		case GameState::Playing:
 			UpdatePlayingState(event, game, currentTime);
 			break;
+		case GameState::NameInputMenu:
+			UpdateNameInputMenuState(game, event);
+			break;
+		case GameState::ConfirmationMenu:
+			UpdateMenuState(game, event, window, game.uiState.menuState.vTextConfirmationMenuItems);
+			break;
 		case GameState::GameOver:
 			UpdateMenuState(game, event, window, game.uiState.menuState.vTextGameOverMenuItems);
 			break;
@@ -134,6 +141,45 @@ namespace SnakeGame
 			game.onKeyHold = false;
 		}
 	}
+
+	void UpdateNameInputMenuState(SGame& game, const sf::Event& event)
+	{
+		if (event.type == sf::Event::TextEntered && !sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+		{
+			if (!game.onKeyHold)
+			{
+				if (event.text.unicode == '' && !game.uiState.menuState.nameInputPlayerName.empty()) 
+				{
+					game.uiState.menuState.nameInputPlayerName.pop_back();
+					game.onKeyHold = true;
+				}
+				else if (event.text.unicode < 128 && event.text.unicode != 32 && event.text.unicode != '') // Only ASCII-symbols without Space and Backspace
+				{
+					game.uiState.menuState.nameInputPlayerName += static_cast<char>(event.text.unicode);
+					game.onKeyHold = true;
+				}
+			}				
+			game.uiState.menuState.nameInputMenuText.setString("Enter your name: " + game.uiState.menuState.nameInputPlayerName);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+		{
+			if (!game.onKeyHold)
+			{
+				if (game.uiState.menuState.nameInputPlayerName.empty())
+				{
+					game.uiState.menuState.nameInputPlayerName = "XYZ";
+				}
+				AddRecord(game.uiState.menuState, game.uiState.menuState.nameInputPlayerName, game.uiState.menuState.numScores);
+				PushGameState(game, GameState::GameOver);
+				game.onKeyHold = true;
+			}
+		}
+		
+		if (event.type == sf::Event::KeyReleased)
+		{
+			game.onKeyHold = false;
+		}
+	}
 	
 	void UpdateMenuState(SGame& game, const sf::Event& event, sf::RenderWindow& window, std::vector<sf::Text>& menuItems)
 	{
@@ -164,6 +210,9 @@ namespace SnakeGame
 					break;
 				case GameState::PauseMenu:
 					HandlePauseMenuSelection(game.uiState.menuState.selectedItemIndex, game);
+					break;
+				case GameState::ConfirmationMenu:
+					HandleConfirmationSelection(game.uiState.menuState.selectedItemIndex, game);
 					break;
 				case GameState::GameOver:
 					HandleGameOverMenuSelection(game.uiState.menuState.selectedItemIndex, game);
@@ -252,6 +301,19 @@ namespace SnakeGame
 		default:  // Back to main menu
 			ResetAllMenuSelection(game.uiState.menuState);
 			PushGameState(game, GameState::MainMenu);
+			break;
+		}
+	}
+
+	void HandleConfirmationSelection(unsigned int selectedIndex, SGame& game)
+	{
+		switch (selectedIndex)  // NOLINT(hicpp-multiway-paths-covered)
+		{
+		case 0:  // No
+			PushGameState(game, GameState::GameOver);
+			break;
+		default: // Yes
+			PushGameState(game, GameState::NameInputMenu);
 			break;
 		}
 	}

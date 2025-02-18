@@ -4,7 +4,7 @@
 
 struct SLeaderboard
 {
-	std::string name;
+	std::string playerName;
 	int score;
 };
 
@@ -41,6 +41,20 @@ namespace SnakeGame
 		std::vector<sf::Text> vTextPauseMenuItems;
 		sf::Text pauseMenuTitle;
 		sf::RectangleShape pauseMenuRectangle;
+
+		// Name Input Menu
+		sf::Text nameInputMenuText;
+		std::string nameInputPlayerName;
+		sf::RectangleShape nameInputMenuRectangle;
+
+		// Confirmation Menu
+		sf::Text confirmationMenuText;
+		std::vector<std::string> VStringConfirmationMenuItems
+		{
+			"No", "Yes"
+		};
+		std::vector<sf::Text> vTextConfirmationMenuItems;
+		sf::RectangleShape confirmationMenuRectangle;
 		
 		// Game Over menu
 		std::vector<std::string> VStringGameOverMenuItems
@@ -66,14 +80,11 @@ namespace SnakeGame
 
 		// Leaderboard
 		std::vector<SLeaderboard> VLeaderboardItems;
-		sf::Text leaderboardNameText[SIZE_LEADERBOARD];
+		std::vector<sf::Text> vTextLeaderboardItems;
 		sf::Text leaderboardTextTitle;
 		sf::Text leaderboardTextInstructions;
 		sf::Sprite leaderboardBackground;
 		sf::Texture leaderboardTexture;
-		
-		// Winner Menu
-		sf::Text winnerText;
 
 		// Other
 		sf::Text limiter;
@@ -88,16 +99,20 @@ namespace SnakeGame
 
 	// Init
 	void InitPauseTexture(SMenuState& menuState);
-	void InitMainMenu(SMenuState& menuState, const sf::Font& font);
-	void InitPauseMenu(SMenuState& menuState, const sf::Font& font);
-	void InitGameOverMenu(SMenuState& menuState, const sf::Font& font);
-	void InitDifficultyMenu(SMenuState& menuState, const sf::Font& font);
-	void InitLeaderboard(SMenuState& menuState, int numEatenFoods, const sf::Font& font, std::vector<SLeaderboard>& leaderTable);
+	void InitMainMenu(SMenuState& menuState);
+	void InitPauseMenu(SMenuState& menuState);
+	void InitNameInputMenu(SMenuState& menuState);
+	void InitConfirmationMenu(SMenuState& menuState);
+	void InitGameOverMenu(SMenuState& menuState);
+	void InitDifficultyMenu(SMenuState& menuState);
+	void InitLeaderboard(SMenuState& menuState);
 	void InitOptionsMenu(SMenuState& menuState);
 	
 	// Draw
 	void DrawMainMenu(SMenuState& menuState, sf::RenderWindow& window);
 	void DrawPauseMenu(SMenuState& menuState, sf::RenderWindow& window);
+	void DrawNameInputMenu(SMenuState& menuState, sf::RenderWindow& window);
+	void DrawConfirmationMenu(SMenuState& menuState, sf::RenderWindow& window);
 	void DrawGameOverMenu(SMenuState& menuState, sf::RenderWindow& window);
 	void DrawLeaderboard(SMenuState& menuState, sf::RenderWindow& window);
 	void DrawDifficultyMenu(SMenuState& menuState, sf::RenderWindow& window);
@@ -105,8 +120,12 @@ namespace SnakeGame
 	void DrawMenuItems(sf::RenderWindow& window, std::vector<sf::Text>& menuItems);
 
 	// Service
+	void AddRecord(SMenuState& menuState, const std::string& playerName, int score);
 	void MoveUp(SMenuState& menuState, std::vector<sf::Text>& menuItems);
 	void MoveDown(SMenuState& menuState, std::vector<sf::Text>& menuItems);
 	void ResetMenuSelection(const SMenuState& menuState, std::vector<sf::Text>& menuItems);
 	void ResetAllMenuSelection(SMenuState& menuState);
+	void SaveRecordsToFile(const std::vector<SLeaderboard>& leaderboard, const std::string& filename);
+	void LoadRecordsFromFile(std::vector<SLeaderboard>& leaderboard, const std::string& filename);
+	bool IsNewRecord(const std::vector<SLeaderboard>& leaderboard, int currentScore);
 }

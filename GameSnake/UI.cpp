@@ -2,6 +2,9 @@
 #include <random>
 #include <cassert>
 #include "UI.h"
+
+#include <iostream>
+
 #include "Game.h"
 
 namespace SnakeGame
@@ -42,7 +45,7 @@ namespace SnakeGame
 		assert(uiState.musicMainTheme.openFromFile(RESOURCES_PATH + "\\FrenchMainMusic.wav"));
 	}
 
-	void InitUI(UIState& uiState, const sf::Font& font)
+	void InitUI(UIState& uiState)
 	{
 		InitUIResources(uiState);
 		InitPauseTexture(uiState.menuState);
@@ -52,24 +55,30 @@ namespace SnakeGame
 		InitRectangleUI(uiState.playingRectangle, SCREEN_WIDTH - 20.f, SCREEN_HEIGHT - 20.f,
 			sf::Color::Transparent, sf::Color::White, 10.f);
 		
-		InitTextUI(uiState.playingScoreText, font, 24, 0, sf::Color::White);
+		InitTextUI(uiState.playingScoreText, uiState.menuState.font, 24, 0, sf::Color::White);
 		
-		InitTextUI(uiState.playingInputText, font, 24, 0, sf::Color::White, "Use WASD to move, Space to restart, ESC to exit");
+		InitTextUI(uiState.playingInputText, uiState.menuState.font, 24, 0, sf::Color::White, "Use WASD to move, Space to restart, ESC to exit");
 
 		// Main Menu Text
-		InitMainMenu(uiState.menuState, font);
+		InitMainMenu(uiState.menuState);
 		
 		// Pause Menu Text
-		InitPauseMenu(uiState.menuState, font);
+		InitPauseMenu(uiState.menuState);
 
+		// Name Input Menu Text
+		InitNameInputMenu(uiState.menuState);
+		
+		// Confirmation Menu Text
+		InitConfirmationMenu(uiState.menuState);
+		
 		// Game over Text
-		InitGameOverMenu(uiState.menuState, font);
+		InitGameOverMenu(uiState.menuState);
 
 		// Difficulty Menu Text
-		InitDifficultyMenu(uiState.menuState, font);
+		InitDifficultyMenu(uiState.menuState);
 
 		// Score table
-		InitLeaderboard(uiState.menuState, uiState.menuState.numScores, uiState.menuState.font, uiState.menuState.VLeaderboardItems);
+		InitLeaderboard(uiState.menuState);
 		
 	}
 
@@ -84,6 +93,8 @@ namespace SnakeGame
 			uiState.isPlayingTextVisible = true;
 			uiState.isMainMenuTextVisible = false;
 			uiState.isPauseMenuTextVisible = false;
+			uiState.isNameInputMenuTextVisible = false;
+			uiState.isConfirmationMenuTextVisible = false;
 			uiState.isGameOverMenuTextVisible = false;
 			uiState.isDifficultyMenuTextVisible = false;
 			uiState.isScoreboardMenuVisible = false;
@@ -95,6 +106,8 @@ namespace SnakeGame
 			uiState.isPlayingTextVisible = false;
 			uiState.isMainMenuTextVisible = true;
 			uiState.isPauseMenuTextVisible = false;
+			uiState.isNameInputMenuTextVisible = false;
+			uiState.isConfirmationMenuTextVisible = false;
 			uiState.isGameOverMenuTextVisible = false;
 			uiState.isDifficultyMenuTextVisible = false;
 			uiState.isScoreboardMenuVisible = false;
@@ -106,6 +119,34 @@ namespace SnakeGame
 			uiState.isPlayingTextVisible = false;
 			uiState.isMainMenuTextVisible = false;
 			uiState.isPauseMenuTextVisible = true;
+			uiState.isNameInputMenuTextVisible = false;
+			uiState.isConfirmationMenuTextVisible = false;
+			uiState.isGameOverMenuTextVisible = false;
+			uiState.isDifficultyMenuTextVisible = false;
+			uiState.isScoreboardMenuVisible = false;
+			uiState.isOptionsMenuTextVisible = false;
+		}
+
+		if (GetCurrentGameState(game) == GameState::NameInputMenu)
+		{
+			uiState.isPlayingTextVisible = false;
+			uiState.isMainMenuTextVisible = false;
+			uiState.isPauseMenuTextVisible = false;
+			uiState.isNameInputMenuTextVisible = true;
+			uiState.isConfirmationMenuTextVisible = false;
+			uiState.isGameOverMenuTextVisible = false;
+			uiState.isDifficultyMenuTextVisible = false;
+			uiState.isScoreboardMenuVisible = false;
+			uiState.isOptionsMenuTextVisible = false;
+		}
+
+		if (GetCurrentGameState(game) == GameState::ConfirmationMenu)
+		{
+			uiState.isPlayingTextVisible = false;
+			uiState.isMainMenuTextVisible = false;
+			uiState.isPauseMenuTextVisible = false;
+			uiState.isNameInputMenuTextVisible = false;
+			uiState.isConfirmationMenuTextVisible = true;
 			uiState.isGameOverMenuTextVisible = false;
 			uiState.isDifficultyMenuTextVisible = false;
 			uiState.isScoreboardMenuVisible = false;
@@ -117,6 +158,8 @@ namespace SnakeGame
 			uiState.isPlayingTextVisible = false;
 			uiState.isMainMenuTextVisible = false;
 			uiState.isPauseMenuTextVisible = false;
+			uiState.isNameInputMenuTextVisible = false;
+			uiState.isConfirmationMenuTextVisible = false;
 			uiState.isGameOverMenuTextVisible = true;
 			uiState.isDifficultyMenuTextVisible = false;
 			uiState.isScoreboardMenuVisible = false;
@@ -128,6 +171,8 @@ namespace SnakeGame
 			uiState.isPlayingTextVisible = false;
 			uiState.isMainMenuTextVisible = false;
 			uiState.isPauseMenuTextVisible = false;
+			uiState.isNameInputMenuTextVisible = false;
+			uiState.isConfirmationMenuTextVisible = false;
 			uiState.isGameOverMenuTextVisible = false;
 			uiState.isDifficultyMenuTextVisible = true;
 			uiState.isScoreboardMenuVisible = false;
@@ -139,6 +184,8 @@ namespace SnakeGame
 			uiState.isPlayingTextVisible = false;
 			uiState.isMainMenuTextVisible = false;
 			uiState.isPauseMenuTextVisible = false;
+			uiState.isNameInputMenuTextVisible = false;
+			uiState.isConfirmationMenuTextVisible = false;
 			uiState.isGameOverMenuTextVisible = false;
 			uiState.isDifficultyMenuTextVisible = false;
 			uiState.isScoreboardMenuVisible = true;
@@ -150,6 +197,8 @@ namespace SnakeGame
 			uiState.isPlayingTextVisible = false;
 			uiState.isMainMenuTextVisible = false;
 			uiState.isPauseMenuTextVisible = false;
+			uiState.isNameInputMenuTextVisible = false;
+			uiState.isConfirmationMenuTextVisible = false;
 			uiState.isGameOverMenuTextVisible = false;
 			uiState.isDifficultyMenuTextVisible = false;
 			uiState.isScoreboardMenuVisible = false;
@@ -183,6 +232,17 @@ namespace SnakeGame
 		{
 			uiState.musicMainTheme.pause();
 			DrawPauseMenu(uiState.menuState, window);
+		}
+
+		if (uiState.isNameInputMenuTextVisible)
+		{
+			DrawNameInputMenu(uiState.menuState, window);
+		}
+
+		if (uiState.isConfirmationMenuTextVisible)
+		{
+			uiState.musicMainTheme.pause();
+			DrawConfirmationMenu(uiState.menuState, window);
 		}
 
 		if (uiState.isGameOverMenuTextVisible)

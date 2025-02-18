@@ -14,16 +14,16 @@ namespace SnakeGame
 		snake.spriteHead.setScale(GetSpriteScale(snake.spriteHead, SNAKE_SEGMENT_SIZE, SNAKE_SEGMENT_SIZE));
 		snake.spriteBody.setScale(GetSpriteScale(snake.spriteBody, SNAKE_SEGMENT_SIZE, SNAKE_SEGMENT_SIZE));
 
-		// Инициализация змейки
-		snake.snakeLength = 4; // Задаем длину змейки
-		snake.direction = SnakeDirection::Right; // Начальное направление
-		snake.position = { FIELD_SIZE_X / 2, FIELD_SIZE_Y / 2 }; // Центр поля
+		// Initialization of a snake
+		snake.snakeLength = 4; // We set the length of the snake
+		snake.direction = SnakeDirection::Right; // Initial direction
+		snake.position = { FIELD_SIZE_X / 2, FIELD_SIZE_Y / 2 }; // The center of the field
 		snake.lastUpdateTime = 0.f;
 	}
 
 	void AddSnake(SGame& game)
 	{
-		// Устанавливаем змейку на поле
+		// Install the snake on the field
 		for (int i = 0; i < game.snake.snakeLength; i++)
 		{
 			game.field[game.snake.position.x - i][game.snake.position.y] = game.snake.snakeLength - i;
@@ -32,12 +32,12 @@ namespace SnakeGame
 
 	void DrawSnake(SSnake& snake, const SGame& game, sf::RenderWindow& window)
 	{
-		// Сначала отрисовываем голову
+		// First, draw the head
 		for (int i = 0; i < FIELD_SIZE_X; i++)
 		{
 			for (int j = 0; j < FIELD_SIZE_Y; j++)
 			{
-				if (game.field[i][j] == snake.snakeLength) // Условие для головы
+				if (game.field[i][j] == snake.snakeLength) // Condition for the head
 				{
 					snake.spriteHead.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + LEADERBOARD_HEIGHT + BORDER_SIZE);
 					window.draw(snake.spriteHead);
@@ -45,7 +45,7 @@ namespace SnakeGame
 			}
 		}
 
-		// Затем отрисовываем тело
+		// Then we draw the body
 		for (int i = 0; i < FIELD_SIZE_X; i++)
 		{
 			for (int j = 0; j < FIELD_SIZE_Y; j++)
@@ -75,14 +75,14 @@ namespace SnakeGame
 
 	void HandleInput(SSnake& player)
 	{
-		// Получаем последнее направление, которое было добавлено в очередь
+		// We get the last direction that was added to the queue
 		SnakeDirection currentDirection = player.direction;
 		if (!player.directionQueue.empty())
 		{
 			currentDirection = player.directionQueue.back();
 		}
 
-		// Регистрируем нажатия клавиш
+		// Recording keystrokes
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && currentDirection != SnakeDirection::Left)
 		{
 			if (player.directionQueue.empty() || player.directionQueue.back() != SnakeDirection::Right)
@@ -112,7 +112,7 @@ namespace SnakeGame
 			}
 		}
 
-		// Ограничиваем размер очереди, если необходимо
+		// Limit the size of the queue if necessary
 		while (player.directionQueue.size() > 3)
 		{
 			player.directionQueue.pop();
@@ -130,13 +130,13 @@ namespace SnakeGame
 
 	    if (currentTime - player.lastUpdateTime >= player.movementInterval)
 	    {
-	        // Применяем следующее направление из очереди, если есть
+	        // Use the following direction from the queue, if there is
 	        if (!player.directionQueue.empty())
 	        {
 	            SnakeDirection nextDirection = player.directionQueue.front();
 	            player.directionQueue.pop();
 
-	            // Проверяем, что направление не противоположно текущему
+	            // We check that the direction is not opposite to the current
 	            if ((player.direction == SnakeDirection::Up && nextDirection != SnakeDirection::Down) ||
 	                (player.direction == SnakeDirection::Down && nextDirection != SnakeDirection::Up) ||
 	                (player.direction == SnakeDirection::Left && nextDirection != SnakeDirection::Right) ||
@@ -146,7 +146,7 @@ namespace SnakeGame
 	            }
 	        }
 
-	        // Перемещаем голову змейки
+	        // We move the snakes
 	        switch (player.direction)
 	    	{
 	            case SnakeDirection::Right:
@@ -165,29 +165,26 @@ namespace SnakeGame
 	                player.position.y++;
 	                if (player.position.y >= FIELD_SIZE_Y) player.position.y = 0;
 	                break;
-                default:  // NOLINT(clang-diagnostic-covered-switch-default)
-                	break;
 		    }
 
-	        // Проверяем столкновение c собой
-	        if (game.field[player.position.x][player.position.y] > FIELD_CELL_TYPE_NONE)
-	        {
-	            game.gameStateStack.push_back(GameState::GameOver);
-	        	game.timeSinceGameOver = 0.f;
-	        	PlaySound(game.uiState, game.uiState.deathBuffer);
-	            return;
-	        }
-
-	    	// Проверяем столкновение cо стеной
-	    	if (game.field[player.position.x][player.position.y] == FIELD_CELL_TYPE_WALL)
+	    	// Check the collision with a wall || We check the collision with ourselves
+	    	if (game.field[player.position.x][player.position.y] == FIELD_CELL_TYPE_WALL ||
+	    		game.field[player.position.x][player.position.y] > FIELD_CELL_TYPE_NONE)
 	    	{
-	    		game.gameStateStack.push_back(GameState::GameOver);
 	    		game.timeSinceGameOver = 0.f;
+	    		if (IsNewRecord(game.uiState.menuState.VLeaderboardItems, game.uiState.menuState.numScores))
+	    		{
+	    			SwitchGameState(game, GameState::ConfirmationMenu);
+	    		}
+			    else
+			    {
+				    SwitchGameState(game, GameState::GameOver);
+			    }
 	    		PlaySound(game.uiState, game.uiState.deathBuffer);
 	    		return;
 	    	}
 
-	        // Проверяем, съела ли змейка яблоко
+	        // Check if the snake has eaten an apple
 	        if (game.field[player.position.x][player.position.y] == FIELD_CELL_TYPE_APPLE)
 	        {
 	            player.snakeLength++;
@@ -198,10 +195,10 @@ namespace SnakeGame
 	            PlaySound(game.uiState, game.uiState.eatAppleBuffer);
 	        }
 
-	        // Обновляем игровое поле
+	        // We update the game field
 	        game.field[player.position.x][player.position.y] = player.snakeLength + 1;
 
-	        // Уменьшаем время жизни частей тела
+	        // Reduce the life of the body parts
 	        for (auto& i : game.field)
 	        {
 	            for (int& j : i)
@@ -213,7 +210,7 @@ namespace SnakeGame
 	            }
 	        }
 
-	        // Обновляем время последнего обновления
+	        // We update the time of the last update
 	        player.lastUpdateTime = currentTime;
 	    }
 	}

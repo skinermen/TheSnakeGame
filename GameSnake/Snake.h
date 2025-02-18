@@ -17,13 +17,13 @@ namespace SnakeGame
 	struct SSnake
 	{
 		Position2D position;
-		float lastUpdateTime = 0.0f; // Время последнего обновления
-		float movementInterval = INITIAL_SPEED_EASY; // Интервал между перемещениями (в секундах)
+		float lastUpdateTime = 0.0f; // The time of the last update
+		float movementInterval = INITIAL_SPEED_EASY; // Interval between movements (in seconds)
 		SnakeDirection direction;
 		sf::Sprite spriteHead;
 		sf::Sprite spriteBody;
 		int snakeLength;
-		std::queue<SnakeDirection> directionQueue; // Очередь направлений
+		std::queue<SnakeDirection> directionQueue; // The line of directions
 	};
 
 	struct SGame;

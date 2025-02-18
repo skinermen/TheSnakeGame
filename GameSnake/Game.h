@@ -14,6 +14,8 @@ namespace SnakeGame
 		None = 0,
 		MainMenu,
 		Playing,
+		NameInputMenu,
+		ConfirmationMenu,
 		GameOver,
 		PauseMenu,
 		Leaderboard,
@@ -57,11 +59,13 @@ namespace SnakeGame
 	
 	void UpdateGame(SGame& game, float currentTime, sf::RenderWindow& window, const sf::Event& event);
 	void UpdatePlayingState(const sf::Event& event, SGame& game, float currentTime);
+	void UpdateNameInputMenuState(SGame& game, const sf::Event& event);
 	void UpdateMenuState(SGame& game, const sf::Event& event, sf::RenderWindow& window, std::vector<sf::Text>& menuItems);
 	void UpdateLeaderboardState(SGame& game, const sf::Event& event);
 	
 	void HandleMainMenuSelection(unsigned int selectedIndex, SGame& game, sf::RenderWindow& window);
 	void HandlePauseMenuSelection(unsigned int selectedIndex, SGame& game);
+	void HandleConfirmationSelection(unsigned int selectedIndex, SGame& game);
 	void HandleGameOverMenuSelection(unsigned int selectedIndex, SGame& game);
 	void HandleDifficultyMenuSelection(unsigned int selectedIndex, SGame& game);
 

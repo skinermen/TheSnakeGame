@@ -1,0 +1,10 @@
+XYZ 500
+XYZ 250
+XYZ 200
+XYZ 170
+XYZ 60
+Marina_Seredina 40
+Skiner 20
+Erzhan 20
+SSS 10
+Skinermen 10

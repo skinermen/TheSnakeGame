@@ -11,10 +11,11 @@ namespace SnakeGame
 	constexpr int CELL_SIZE = 32;
 	
 	const std::string RESOURCES_PATH = "Resources/";
+	const std::string LEADERBOARD_FILENAME = "leaderboard.txt";
+	const std::string DEFAULT_NAME = "XYZ";
 	
 	// Size
 	constexpr int LEADERBOARD_HEIGHT = 58;
-	constexpr int MAX_LINES_TO_LEADERBOARD = 7;
 	constexpr int SIZE_LEADERBOARD = 10;
 	constexpr int BORDER_SIZE = 10;
 	constexpr int SCREEN_WIDTH = FIELD_SIZE_X * CELL_SIZE + BORDER_SIZE * 2;
