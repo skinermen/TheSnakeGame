@@ -32,7 +32,8 @@ namespace SnakeGame
 		sf::Sound sound;
 		sf::SoundBuffer eatAppleBuffer;
 		sf::SoundBuffer deathBuffer;
-		sf::SoundBuffer winnerBuffer;
+		sf::SoundBuffer pressEnterBuffer;
+		sf::SoundBuffer selectMenuBuffer;
 		sf::Music musicMainTheme;
 		sf::Image icon;
 	};
@@ -44,4 +45,6 @@ namespace SnakeGame
 	void UpdateUI(UIState& uiState, const SGame& game);
 	void DrawUI(UIState& uiState, sf::RenderWindow& window);
 	void PlaySound(UIState& uiState, const sf::SoundBuffer& buffer);
+	void InitPlayMusic(UIState& uiState);
+	void OnPlayMusic(UIState& uiState, bool isPlay);
 }

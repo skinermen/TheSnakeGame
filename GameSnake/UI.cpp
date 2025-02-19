@@ -2,9 +2,6 @@
 #include <random>
 #include <cassert>
 #include "UI.h"
-
-#include <iostream>
-
 #include "Game.h"
 
 namespace SnakeGame
@@ -31,18 +28,17 @@ namespace SnakeGame
 	void InitUIResources(UIState& uiState)
 	{
 		assert(uiState.menuState.font.loadFromFile(RESOURCES_PATH + "\\Fonts/Roboto-Regular.ttf"));
-		assert(uiState.snakeTextureHead.loadFromFile(RESOURCES_PATH + "\\snake.png"));
-		assert(uiState.snakeTextureBody.loadFromFile(RESOURCES_PATH + "\\Snake_Body.png"));
-		assert(uiState.appleTexture.loadFromFile(RESOURCES_PATH + "\\Apple.png"));
+		assert(uiState.snakeTextureHead.loadFromFile(RESOURCES_PATH + "\\snake_head.png"));
+		assert(uiState.snakeTextureBody.loadFromFile(RESOURCES_PATH + "\\snake_body.png"));
+		assert(uiState.appleTexture.loadFromFile(RESOURCES_PATH + "\\apple.png"));
 		assert(uiState.wallTexture.loadFromFile(RESOURCES_PATH + "\\wall.png"));
 		assert(uiState.noneTexture.loadFromFile(RESOURCES_PATH + "\\none.png"));
-		assert(uiState.menuState.leaderboardTexture.loadFromFile(RESOURCES_PATH + "\\Scoreboard.png"));
-		assert(uiState.menuState.mainMenuTexture.loadFromFile(RESOURCES_PATH + "\\Menu.png"));
-		assert(uiState.icon.loadFromFile(RESOURCES_PATH + "\\Icon.png"));
-		assert(uiState.eatAppleBuffer.loadFromFile(RESOURCES_PATH + "\\MushroomEat.wav"));
+		assert(uiState.icon.loadFromFile(RESOURCES_PATH + "\\icon.png"));
 		assert(uiState.deathBuffer.loadFromFile(RESOURCES_PATH + "\\Death.wav"));
-		assert(uiState.winnerBuffer.loadFromFile(RESOURCES_PATH + "\\Winner.wav"));
-		assert(uiState.musicMainTheme.openFromFile(RESOURCES_PATH + "\\FrenchMainMusic.wav"));
+		assert(uiState.eatAppleBuffer.loadFromFile(RESOURCES_PATH + "\\Collision.wav"));
+		assert(uiState.pressEnterBuffer.loadFromFile(RESOURCES_PATH + "\\Press_Enter.wav"));
+		assert(uiState.selectMenuBuffer.loadFromFile(RESOURCES_PATH + "\\Select_Menu.wav"));
+		assert(uiState.musicMainTheme.openFromFile(RESOURCES_PATH + "\\MainTheme.wav"));
 	}
 
 	void InitUI(UIState& uiState)
@@ -50,6 +46,7 @@ namespace SnakeGame
 		InitUIResources(uiState);
 		InitPauseTexture(uiState.menuState);
 		uiState.noneSprite.setTexture(uiState.noneTexture);
+		uiState.noneSprite.setOrigin(CELL_SIZE / 2.f, CELL_SIZE / 2.f);
 		
 		// Playing Resources
 		InitRectangleUI(uiState.playingRectangle, SCREEN_WIDTH - 20.f, SCREEN_HEIGHT - 20.f,
@@ -71,21 +68,23 @@ namespace SnakeGame
 		// Confirmation Menu Text
 		InitConfirmationMenu(uiState.menuState);
 		
+		// Leaderboard
+		InitLeaderboard(uiState.menuState);
+		
 		// Game over Text
 		InitGameOverMenu(uiState.menuState);
 
 		// Difficulty Menu Text
 		InitDifficultyMenu(uiState.menuState);
 
-		// Score table
-		InitLeaderboard(uiState.menuState);
-		
+		// Options Menu Text
+		InitOptionsMenu(uiState.menuState);
 	}
 
 	void UpdateUI(UIState& uiState, const SGame& game)
 	{
 		uiState.playingScoreText.setString("Scores: " + std::to_string(uiState.menuState.numScores));
-		uiState.menuState.gameOverScoreText.setString("Scores: " + std::to_string(uiState.menuState.numScores));
+		uiState.menuState.gameOverScores.setString(std::to_string(uiState.menuState.numScores));
 		uiState.isGameOverMenuTextVisible = GetCurrentGameState(game) == GameState::GameOver;
 
 		if (GetCurrentGameState(game) == GameState::Playing)
@@ -230,7 +229,7 @@ namespace SnakeGame
 
 		if (uiState.isPauseMenuTextVisible)
 		{
-			uiState.musicMainTheme.pause();
+			OnPlayMusic(uiState, false);
 			DrawPauseMenu(uiState.menuState, window);
 		}
 
@@ -241,13 +240,13 @@ namespace SnakeGame
 
 		if (uiState.isConfirmationMenuTextVisible)
 		{
-			uiState.musicMainTheme.pause();
+			OnPlayMusic(uiState, false);
 			DrawConfirmationMenu(uiState.menuState, window);
 		}
 
 		if (uiState.isGameOverMenuTextVisible)
 		{
-			uiState.musicMainTheme.pause();
+			OnPlayMusic(uiState, false);
 			DrawGameOverMenu(uiState.menuState, window);
 		}
 
@@ -269,8 +268,33 @@ namespace SnakeGame
 
 	void PlaySound(UIState& uiState, const sf::SoundBuffer& buffer)
 	{
-		uiState.sound.setBuffer(buffer);
-		uiState.sound.setVolume(50);
-		uiState.sound.play();
+		if (uiState.menuState.isSoundOn)
+		{
+			uiState.sound.setBuffer(buffer);
+			uiState.sound.setVolume(30);
+			uiState.sound.play();
+		}
+	}
+
+	void InitPlayMusic(UIState& uiState)
+	{
+			uiState.musicMainTheme.setVolume(30);
+			uiState.musicMainTheme.setPlayingOffset(sf::seconds(0.f));
+			uiState.musicMainTheme.setLoop(true);
+	}
+
+	void OnPlayMusic(UIState& uiState, bool isPlay)
+	{
+		if (uiState.menuState.isMusicOn)
+		{
+			if (isPlay)
+			{
+				uiState.musicMainTheme.play();
+			}
+			else
+			{
+				uiState.musicMainTheme.pause();
+			}
+		}
 	}
 }

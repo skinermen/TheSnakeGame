@@ -18,8 +18,8 @@ int main()
 	InitGame(game,window);
 
 	// Init game clocks
+	// ReSharper disable once CppTooWideScope
 	sf::Clock gameClock;
-	float lastTime = gameClock.getElapsedTime().asSeconds();
 
 	// Main loop
 	while (window.isOpen())
@@ -40,8 +40,6 @@ int main()
 
 		// Calculate time delta
 		float currentTime = gameClock.getElapsedTime().asSeconds();
-		float deltaTime = currentTime - lastTime;
-		lastTime = currentTime;
 
 		//Update game state
 		UpdateGame(game, currentTime, window, event);

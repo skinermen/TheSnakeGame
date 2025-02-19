@@ -12,7 +12,9 @@ namespace SnakeGame
 		SetSpriteSize(snake.spriteHead, SNAKE_SEGMENT_SIZE, SNAKE_SEGMENT_SIZE);
 		SetSpriteSize(snake.spriteBody, SNAKE_SEGMENT_SIZE, SNAKE_SEGMENT_SIZE);
 		snake.spriteHead.setScale(GetSpriteScale(snake.spriteHead, SNAKE_SEGMENT_SIZE, SNAKE_SEGMENT_SIZE));
+		snake.spriteHead.setOrigin(SNAKE_SEGMENT_SIZE / 2.f, SNAKE_SEGMENT_SIZE / 2.f);
 		snake.spriteBody.setScale(GetSpriteScale(snake.spriteBody, SNAKE_SEGMENT_SIZE, SNAKE_SEGMENT_SIZE));
+		snake.spriteBody.setOrigin(SNAKE_SEGMENT_SIZE / 2.f, SNAKE_SEGMENT_SIZE / 2.f);
 
 		// Initialization of a snake
 		snake.snakeLength = 4; // We set the length of the snake
@@ -39,7 +41,9 @@ namespace SnakeGame
 			{
 				if (game.field[i][j] == snake.snakeLength) // Condition for the head
 				{
-					snake.spriteHead.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + LEADERBOARD_HEIGHT + BORDER_SIZE);
+					snake.spriteHead.setPosition
+					(i * CELL_SIZE + BORDER_SIZE + CELL_SIZE / 2.f,
+					 j * CELL_SIZE + LEADERBOARD_HEIGHT + BORDER_SIZE + CELL_SIZE / 2.f);
 					window.draw(snake.spriteHead);
 				}
 			}
@@ -52,7 +56,9 @@ namespace SnakeGame
 			{
 				if (game.field[i][j] > FIELD_CELL_TYPE_NONE && game.field[i][j] < snake.snakeLength)
 				{
-					snake.spriteBody.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + LEADERBOARD_HEIGHT + BORDER_SIZE);
+					snake.spriteBody.setPosition
+					(i * CELL_SIZE + BORDER_SIZE + CELL_SIZE / 2.f,
+					 j * CELL_SIZE + LEADERBOARD_HEIGHT + BORDER_SIZE + CELL_SIZE / 2.f);
 					window.draw(snake.spriteBody);
 				}
 			}
@@ -128,6 +134,19 @@ namespace SnakeGame
 			return;
 		}
 
+		if (game.isGameStarting)
+		{
+			if (game.gameStartTime == 0.f)
+			{
+				game.gameStartTime = currentTime;
+			}
+			if (currentTime - game.gameStartTime < PAUSE_LENGTH)
+			{
+				return;
+			}
+			game.isGameStarting = false;
+		}
+
 	    if (currentTime - player.lastUpdateTime >= player.movementInterval)
 	    {
 	        // Use the following direction from the queue, if there is
@@ -152,18 +171,22 @@ namespace SnakeGame
 	            case SnakeDirection::Right:
 	                player.position.x++;
 	                if (player.position.x >= FIELD_SIZE_X) player.position.x = 0;
+	        		player.spriteHead.setRotation(0);
 	                break;
 	            case SnakeDirection::Up:
 	                player.position.y--;
 	                if (player.position.y < 0) player.position.y = FIELD_SIZE_Y - 1;
+	        		player.spriteHead.setRotation(270);
 	                break;
 	            case SnakeDirection::Left:
 	                player.position.x--;
 	                if (player.position.x < 0) player.position.x = FIELD_SIZE_X - 1;
+	        		player.spriteHead.setRotation(180);
 	                break;
 	            case SnakeDirection::Down:
 	                player.position.y++;
 	                if (player.position.y >= FIELD_SIZE_Y) player.position.y = 0;
+	        		player.spriteHead.setRotation(90);
 	                break;
 		    }
 

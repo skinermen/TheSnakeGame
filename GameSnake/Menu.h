@@ -29,9 +29,8 @@ namespace SnakeGame
 		};
 		std::vector<sf::Text> vTextMainMenuItems;
 		sf::Text mainMenuTitle;
-		sf::Sprite backgroundMenu;
 		sf::Texture mainMenuTexture;
-		sf::RectangleShape mainMenuRectangle;
+		sf::RectangleShape mainMenuRectangleBackground;
 		
 		// Pause menu
 		std::vector<std::string> VStringPauseMenuItems
@@ -40,12 +39,12 @@ namespace SnakeGame
 		};
 		std::vector<sf::Text> vTextPauseMenuItems;
 		sf::Text pauseMenuTitle;
-		sf::RectangleShape pauseMenuRectangle;
+		sf::RectangleShape pauseMenuRectangleBackground;
 
 		// Name Input Menu
 		sf::Text nameInputMenuText;
 		std::string nameInputPlayerName;
-		sf::RectangleShape nameInputMenuRectangle;
+		sf::RectangleShape nameInputMenuRectangleBackground;
 
 		// Confirmation Menu
 		sf::Text confirmationMenuText;
@@ -54,7 +53,7 @@ namespace SnakeGame
 			"No", "Yes"
 		};
 		std::vector<sf::Text> vTextConfirmationMenuItems;
-		sf::RectangleShape confirmationMenuRectangle;
+		sf::RectangleShape confirmationMenuRectangleBackground;
 		
 		// Game Over menu
 		std::vector<std::string> VStringGameOverMenuItems
@@ -62,8 +61,11 @@ namespace SnakeGame
 			"NEW GAME", "MAIN MENU"
 		};
 		std::vector<sf::Text> vTextGameOverMenuItems;
-		sf::Text gameOverScoreText;
-		sf::RectangleShape gameOverRectangle;
+		std::vector<sf::Text> vTextGameOverLeaderboardItems;
+		sf::Text gameOverScoreTitle;
+		sf::Text gameOverScores;
+		sf::Text gameOverRecordsTitle;
+		sf::RectangleShape gameOverRectangleBackground;
 
 		// Difficulty menu
 		std::vector<SDifficultySettings> VStringDifficultyMenuItems
@@ -76,23 +78,33 @@ namespace SnakeGame
 		};
 		std::vector<sf::Text> vTextDifficultyMenuItems;
 		sf::Text difficultyMenuTitle;
-		sf::RectangleShape difficultyMenuRectangle;
+		sf::RectangleShape difficultyMenuRectangleBackground;
 
 		// Leaderboard
 		std::vector<SLeaderboard> VLeaderboardItems;
 		std::vector<sf::Text> vTextLeaderboardItems;
+		sf::RectangleShape leaderboardRectangleBackground;
 		sf::Text leaderboardTextTitle;
 		sf::Text leaderboardTextInstructions;
-		sf::Sprite leaderboardBackground;
 		sf::Texture leaderboardTexture;
 
+		// Options
+		sf::Text optionsMenuTitle;
+		std::vector<std::string> VStringOptionsMenuItems
+		{
+			{"Sounds"}, {"Music"}
+		};
+		std::vector<sf::Text> vTextOptionsMenuItems;
+		std::vector<sf::RectangleShape> vRectanglesOptionsMenu;
+		sf::RectangleShape optionsMenuRectangleBackground;
+		bool isSoundOn = true;
+		bool isMusicOn = true;
+		
 		// Other
 		sf::Text limiter;
 		unsigned int selectedItemIndex = 0;
 		int numScores = 0;
 		sf::Font font;
-		sf::Sprite backgroundGameZone;
-		sf::Sprite backgroundLast;
 		sf::Sprite pauseBlurSprite;
 		sf::RenderTexture pauseBlurTexture;
 	};
@@ -104,6 +116,7 @@ namespace SnakeGame
 	void InitNameInputMenu(SMenuState& menuState);
 	void InitConfirmationMenu(SMenuState& menuState);
 	void InitGameOverMenu(SMenuState& menuState);
+	void InitGameOverLeaderboardItems(SMenuState& menuState);
 	void InitDifficultyMenu(SMenuState& menuState);
 	void InitLeaderboard(SMenuState& menuState);
 	void InitOptionsMenu(SMenuState& menuState);
@@ -117,7 +130,8 @@ namespace SnakeGame
 	void DrawLeaderboard(SMenuState& menuState, sf::RenderWindow& window);
 	void DrawDifficultyMenu(SMenuState& menuState, sf::RenderWindow& window);
 	void DrawOptionsMenu(SMenuState& menuState, sf::RenderWindow& window);
-	void DrawMenuItems(sf::RenderWindow& window, std::vector<sf::Text>& menuItems);
+	void DrawMenuItems(sf::RenderWindow& window, std::vector<sf::Text>& menuItems,
+		float posX, float posY, float indentation);
 
 	// Service
 	void AddRecord(SMenuState& menuState, const std::string& playerName, int score);
@@ -128,4 +142,5 @@ namespace SnakeGame
 	void SaveRecordsToFile(const std::vector<SLeaderboard>& leaderboard, const std::string& filename);
 	void LoadRecordsFromFile(std::vector<SLeaderboard>& leaderboard, const std::string& filename);
 	bool IsNewRecord(const std::vector<SLeaderboard>& leaderboard, int currentScore);
+	void SetFillColorRectangle(SMenuState& menuState, int selectedIndex, bool option);
 }

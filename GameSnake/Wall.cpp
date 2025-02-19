@@ -5,14 +5,14 @@ namespace SnakeGame
 {
 	void InitWall(SWall& wall, const SGame& game)
 	{
-		// Инициализация спрайта стены
 		wall.sprite.setTexture(game.uiState.wallTexture);
-		SetSpriteSize(wall.sprite, WALL_SIZE, WALL_SIZE);  // Устанавливаем размер спрайта стены
+		SetSpriteSize(wall.sprite, WALL_SIZE, WALL_SIZE);
+		wall.sprite.setOrigin(CELL_SIZE / 2.f, CELL_SIZE / 2.f);
 	}
 
 	void AddWall(SGame& game)
 	{
-		// Добавление стен по периметру
+		// Adding walls around the perimeter
 		for (auto& i : game.field)
 		{
 			i[0] = FIELD_CELL_TYPE_WALL;
@@ -31,12 +31,12 @@ namespace SnakeGame
 		{
 			for (int j = 0; j < FIELD_SIZE_Y; j++)
 			{
-				// Проверяем, является ли клетка стеной
+				// Check if the cell is a wall
 				if (game.field[i][j] == FIELD_CELL_TYPE_WALL)
 				{
-					// Устанавливаем позицию спрайта стены
-					wall.sprite.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + LEADERBOARD_HEIGHT + BORDER_SIZE);
-					window.draw(wall.sprite);  // Рисуем стену
+					wall.sprite.setPosition(i * CELL_SIZE + BORDER_SIZE + CELL_SIZE / 2.f,
+											j * CELL_SIZE + LEADERBOARD_HEIGHT + BORDER_SIZE + CELL_SIZE / 2.f);
+					window.draw(wall.sprite);
 				}
 			}
 		}

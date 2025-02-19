@@ -4,7 +4,6 @@
 #include "Apple.h"
 #include "Wall.h"
 #include "UI.h"
-#include <string>
 #include <pplwin.h>
 
 namespace SnakeGame
@@ -27,6 +26,8 @@ namespace SnakeGame
 	{
 		// Game state
 		bool isScreenLeaderboard = false;
+		bool isGameStarting  = true;
+		float gameStartTime = 0.f;
 
 		// Key state
 		bool onKeyHold = false;
@@ -68,6 +69,7 @@ namespace SnakeGame
 	void HandleConfirmationSelection(unsigned int selectedIndex, SGame& game);
 	void HandleGameOverMenuSelection(unsigned int selectedIndex, SGame& game);
 	void HandleDifficultyMenuSelection(unsigned int selectedIndex, SGame& game);
+	void HandleOptionsMenuSelection(unsigned int selectedIndex, SGame& game);
 
 	void DrawGame(SGame& game, sf::RenderWindow& window);
 	
@@ -78,8 +80,5 @@ namespace SnakeGame
 	GameState GetCurrentGameState(const SGame& game);
 	GameState GetPreviousGameState(const SGame& game);
 	int GetRandomEmptyCell(const SGame& game);
-	std::string GetButtonText(const SGame& game, int modeSelection);
-
-	void ToggleGameMode(SGame& game, int modeSelection);
 }
 

@@ -1,7 +1,6 @@
 // ReSharper disable CppClangTidyClangDiagnosticCoveredSwitchDefault
 #include "Game.h"
 #include <cassert>
-#include <iostream>
 #include <random>
 
 namespace SnakeGame
@@ -21,6 +20,8 @@ namespace SnakeGame
 		game.numEatenApples = 0;
 		game.uiState.menuState.numScores = 0;
 		game.timeSinceGameOver = 0.f;
+		game.isGameStarting = true;
+		game.gameStartTime = 0.f;
 
 		// Init Player
 		InitSnake(game.snake, game);
@@ -45,17 +46,10 @@ namespace SnakeGame
 		InitApple(apple, game);
 		game.applesVec.emplace_back(apple);
 		
-		game.uiState.menuState.backgroundMenu.setTexture(game.uiState.menuState.mainMenuTexture);
-		SetSpriteSize(game.uiState.menuState.backgroundMenu, SCREEN_WIDTH, SCREEN_HEIGHT);
-		game.uiState.menuState.leaderboardBackground.setTexture(game.uiState.menuState.leaderboardTexture);
-		SetSpriteSize(game.uiState.menuState.leaderboardBackground, SCREEN_WIDTH, SCREEN_HEIGHT);
-		
 		if (GetCurrentGameState(game) == GameState::Playing)
 		{
-			game.uiState.musicMainTheme.setVolume(20);
-			game.uiState.musicMainTheme.setPlayingOffset(sf::seconds(0.f));
-			game.uiState.musicMainTheme.play();
-			game.uiState.musicMainTheme.setLoop(true);
+			InitPlayMusic(game.uiState);
+			OnPlayMusic(game.uiState, true);
 		}
 	}
 
@@ -102,6 +96,8 @@ namespace SnakeGame
 			UpdateMenuState(game, event, window, game.uiState.menuState.vTextMainMenuItems);
 			break;
 		case GameState::PauseMenu:
+			game.isGameStarting = true;
+			game.gameStartTime = 0.f;
 			UpdateMenuState(game, event, window, game.uiState.menuState.vTextPauseMenuItems);
 			break;
 		case GameState::Leaderboard:
@@ -111,9 +107,9 @@ namespace SnakeGame
 			UpdateMenuState(game, event, window, game.uiState.menuState.vTextDifficultyMenuItems);
 			break;
 		case GameState::Options:
-			// UpdateMenuState(game, event, window, game.uiState.menuState.vTextOptionMenuItems);
+			UpdateMenuState(game, event, window, game.uiState.menuState.vTextOptionsMenuItems);
 			break;
-		case GameState::None:
+		case GameState::None:  // NOLINT(bugprone-branch-clone)
 				break;
 		default:
 			break;
@@ -189,6 +185,7 @@ namespace SnakeGame
 			if (!game.onKeyHold)
 			{
 				MoveUp(game.uiState.menuState, menuItems);
+				PlaySound(game.uiState, game.uiState.selectMenuBuffer);
 			}
 			game.onKeyHold = true;
 		}
@@ -197,6 +194,7 @@ namespace SnakeGame
 			if (!game.onKeyHold)
 			{
 				MoveDown(game.uiState.menuState, menuItems);
+				PlaySound(game.uiState, game.uiState.selectMenuBuffer);
 			}
 			game.onKeyHold = true;
 		}
@@ -222,11 +220,12 @@ namespace SnakeGame
 					HandleDifficultyMenuSelection(game.uiState.menuState.selectedItemIndex, game);
 					break;
 				case GameState::Options:
-					// Options
+					HandleOptionsMenuSelection(game.uiState.menuState.selectedItemIndex, game);
 						break;
 				default:
 					break;
 				}
+				PlaySound(game.uiState, game.uiState.pressEnterBuffer);
 				game.onKeyHold = true;
 			}
 		}
@@ -283,7 +282,7 @@ namespace SnakeGame
 			PushGameState(game, GameState::Leaderboard);
 			break;
 		case 3:  // Options
-			///
+			PushGameState(game, GameState::Options);
 				break;
 		default: // Exit
 			window.close();
@@ -297,7 +296,7 @@ namespace SnakeGame
 		{
 		case 0:  // Continue Game
 			SwitchGameState(game, GameState::Playing);
-			game.uiState.musicMainTheme.play();
+			OnPlayMusic(game.uiState, true);
 			break;
 		default:  // Back to main menu
 			ResetAllMenuSelection(game.uiState.menuState);
@@ -346,6 +345,21 @@ namespace SnakeGame
 		}
 	}
 
+	void HandleOptionsMenuSelection(unsigned int selectedIndex, SGame& game)
+	{
+		switch (selectedIndex)  // NOLINT(hicpp-multiway-paths-covered)
+		{
+		case 0:  // Sound
+			game.uiState.menuState.isSoundOn = !game.uiState.menuState.isSoundOn;
+			SetFillColorRectangle(game.uiState.menuState, selectedIndex, game.uiState.menuState.isSoundOn);
+			break;
+		default:  // Music
+			game.uiState.menuState.isMusicOn = !game.uiState.menuState.isMusicOn;
+			SetFillColorRectangle(game.uiState.menuState, selectedIndex, game.uiState.menuState.isMusicOn);
+			break;
+		}
+	}
+
 	void DrawGame(SGame& game, sf::RenderWindow& window)
 	{		
 		// Draw Background
@@ -356,7 +370,9 @@ namespace SnakeGame
 				switch (game.field[i][j])
 				{
 				case FIELD_CELL_TYPE_NONE:
-					game.uiState.noneSprite.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + LEADERBOARD_HEIGHT + BORDER_SIZE);
+					game.uiState.noneSprite.setPosition
+					( i * CELL_SIZE + BORDER_SIZE + CELL_SIZE / 2.f,
+					  j * CELL_SIZE + LEADERBOARD_HEIGHT + BORDER_SIZE + CELL_SIZE / 2.f);
 					window.draw(game.uiState.noneSprite);
 					break;
 				default:
@@ -378,11 +394,6 @@ namespace SnakeGame
 		for (SWall& wall : game.wallsVec)
 		{
 			DrawWall(wall, game, window);
-		}
-
-		if (GetCurrentGameState(game) == GameState::Leaderboard)
-		{
-			window.draw(game.uiState.menuState.backgroundLast);
 		}
 
 		// Draw UI
@@ -478,21 +489,6 @@ namespace SnakeGame
 			}
 		}
 		return -1;
-	}
-
-	std::string GetButtonText(const SGame& game, const int modeSelection)
-	{
-		if (game.gameMode & modeSelection)
-		{
-			return "On";
-		}
-
-		return "Off";
-	}
-
-	void ToggleGameMode(SGame& game, const int modeSelection)
-	{
-		game.gameMode ^= modeSelection;
 	}
 }
 

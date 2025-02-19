@@ -5,9 +5,9 @@ namespace SnakeGame
 {
 	void InitApple(SApple& apple, const SGame& game)
 	{
-		// Init apple sprite
 		apple.sprite.setTexture(game.uiState.appleTexture);
 		SetSpriteSize(apple.sprite, FOOD_SIZE, FOOD_SIZE);
+		apple.sprite.setOrigin(CELL_SIZE / 2.f, CELL_SIZE / 2.f);
 	}
 
 	void AddApple(SGame& game)
@@ -29,7 +29,8 @@ namespace SnakeGame
 				switch (game.field[i][j])
 				{
 				case FIELD_CELL_TYPE_APPLE:
-					apple.sprite.setPosition(i * CELL_SIZE + BORDER_SIZE, j * CELL_SIZE + LEADERBOARD_HEIGHT + BORDER_SIZE);
+					apple.sprite.setPosition(i * CELL_SIZE + BORDER_SIZE + CELL_SIZE / 2.f,
+											 j * CELL_SIZE + LEADERBOARD_HEIGHT + BORDER_SIZE + CELL_SIZE / 2.f);
 					window.draw(apple.sprite);
 					break;
 				default:

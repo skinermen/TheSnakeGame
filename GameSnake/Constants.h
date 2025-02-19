@@ -17,6 +17,7 @@ namespace SnakeGame
 	// Size
 	constexpr int LEADERBOARD_HEIGHT = 58;
 	constexpr int SIZE_LEADERBOARD = 10;
+	constexpr int SIZE_MINI_LEADERBOARD = 5;
 	constexpr int BORDER_SIZE = 10;
 	constexpr int SCREEN_WIDTH = FIELD_SIZE_X * CELL_SIZE + BORDER_SIZE * 2;
 	constexpr int SCREEN_HEIGHT = FIELD_SIZE_Y * CELL_SIZE + LEADERBOARD_HEIGHT + BORDER_SIZE * 2;
@@ -38,8 +39,5 @@ namespace SnakeGame
 	constexpr float INITIAL_SPEED_HARD = 0.1f;
 	
 	// Other
-	constexpr float ACCELERATION = 20.f; // Pixels per seconds
-	constexpr float PAUSE_LENGTH = 0.f;
-	constexpr int MASK_INFINIT_FOODS = 0x01;
-	constexpr int MASK_WITH_ACCELERATION = 0x20;
+	constexpr float PAUSE_LENGTH = 1.f;
 }
